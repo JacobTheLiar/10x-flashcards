@@ -28,7 +28,7 @@
 - **Docker** - konteneryzacja wszystkich komponentów
 - **Docker Compose** - orkiestracja kontenerów w środowisku lokalnym
 - **GitHub Actions** - CI/CD
-- **VPS cal.pl** - hosting
+- **VPS cal.pl** - hosting 
 
 ## Testy
 - **JUnit 5** - testy jednostkowe
