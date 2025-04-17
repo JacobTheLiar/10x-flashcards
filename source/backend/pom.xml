@@ -8,27 +8,21 @@
 		<version>3.4.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
+
 	<groupId>pl.jit</groupId>
 	<artifactId>flashcards</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>flashcards</name>
 	<description>Demo project to build with AI Assist with 10x_Devs</description>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
+
 	<properties>
 		<java.version>21</java.version>
+		<springdoc.version>2.6.0</springdoc.version>
+		<mapstruct.version>1.5.5.Final</mapstruct.version>
+		<flyway.version>10.20.1</flyway.version>
+		<lombok.version>1.18.36</lombok.version>
 	</properties>
+
 	<dependencies>
 		<!-- Spring Data JPA -->
 		<dependency>
@@ -49,22 +43,24 @@
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-			<version>2.1.0</version>
+			<version>${springdoc.version}</version>
 		</dependency>
 		<!-- MapStruct -->
 		<dependency>
 			<groupId>org.mapstruct</groupId>
 			<artifactId>mapstruct</artifactId>
-			<version>1.5.3.Final</version>
+			<version>${mapstruct.version}</version>
 		</dependency>
 		<!-- Flyway dla migracji bazy danych -->
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-core</artifactId>
+			<version>${flyway.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.flywaydb</groupId>
 			<artifactId>flyway-database-postgresql</artifactId>
+			<version>10.20.1</version>
 		</dependency>
 		<!-- Docker Compose support -->
 		<dependency>
@@ -84,6 +80,7 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
+			<version>${lombok.version}</version>
 		</dependency>
 		<!-- Testy -->
 		<dependency>
@@ -104,12 +101,13 @@
 						<path>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
+							<version>${lombok.version}</version>
 						</path>
 						<!-- MapStruct processor -->
 						<path>
 							<groupId>org.mapstruct</groupId>
 							<artifactId>mapstruct-processor</artifactId>
-							<version>1.5.3.Final</version>
+							<version>${mapstruct.version}</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
@@ -128,5 +126,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
