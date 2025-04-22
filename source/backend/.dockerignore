@@ -1,0 +1,33 @@
+# Ignorowanie plików Git
+.git
+.gitignore
+
+# Ignorowanie katalogów Maven
+target/
+!target/*.jar
+
+# Ignorowanie plików IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.swp
+*.swo
+
+# Ignorowanie plików testowych
+**/test/
+
+# Ignorowanie plików konfiguracyjnych Docker
+Dockerfile
+docker-compose.yml
+.env
+
+# Ignorowanie plików README i dokumentacji
+README.md
+docs/
+
+# Inne pliki tymczasowe
+*.log
+*.tmp
+.DS_Store
