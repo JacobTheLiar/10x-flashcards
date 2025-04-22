@@ -6,8 +6,6 @@ services:
     image: postgres:17.4-alpine
     container_name: flashcards-db
     restart: unless-stopped
-    env_file:
-      - .env
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
@@ -16,6 +14,8 @@ services:
       - postgres-data:/var/lib/postgresql/data
     networks:
       - flashcards-network
+    ports:
+      - "${EXPOSE_DB_PORT:-''}"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 10s
