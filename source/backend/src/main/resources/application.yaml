@@ -6,12 +6,20 @@ spring:
     username: ${POSTGRES_USER:flashcards_user}
     password: ${POSTGRES_PASSWORD:flashcards_password}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+      pool-name: FlashcardsHikariPool
   jpa:
     hibernate:
       ddl-auto: validate
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          time_zone: UTC
     show-sql: true
   flyway:
     enabled: true
