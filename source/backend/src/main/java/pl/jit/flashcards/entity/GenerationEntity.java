@@ -17,7 +17,7 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "generations")
-public class Generation {
+public class GenerationEntity {
     @Id
     @ColumnDefault("gen_random_uuid()")
     @Column(name = "id", nullable = false)

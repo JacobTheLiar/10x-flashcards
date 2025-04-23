@@ -14,7 +14,7 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "generation_errors")
-public class GenerationError {
+public class GenerationErrorEntity {
     @Id
     @Column(name = "generation_id", nullable = false)
     private UUID id;
@@ -23,7 +23,7 @@ public class GenerationError {
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "generation_id", nullable = false)
-    private Generation generations;
+    private GenerationEntity generations;
 
     @Size(max = 50)
     @NotNull

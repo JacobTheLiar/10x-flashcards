@@ -16,7 +16,7 @@ import java.util.UUID;
 @Setter
 @Entity
 @Table(name = "flashcards")
-public class Flashcard {
+public class FlashcardEntity {
     @Id
     @ColumnDefault("gen_random_uuid()")
     @Column(name = "id", nullable = false)
@@ -26,12 +26,12 @@ public class Flashcard {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private UserEntity user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.SET_NULL)
     @JoinColumn(name = "generation_id")
-    private Generation generation;
+    private GenerationEntity generation;
 
     @Size(max = 500)
     @NotNull
