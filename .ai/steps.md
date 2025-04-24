@@ -23,5 +23,8 @@
 5. Wygenerowanie pliku migracji bazy danych dla flyway [V1.0__create_base_schema.sql];☑️🤖
    1. Dostosowanie BE;
    2. Migracja do najnowszej wersji;
-6. Wygenerowanie Encji na podstawie bazy danych; ☑️🔨
-7. 
+6. Wygenerowanie Encji na podstawie bazy danych [backend]; ☑️🔨
+7. Wygenerowanie Repozytoriów i dostosowanie konfuguracji [backend];☑️🤖
+8. API Endpoints: ☑️🤖
+   1. sesja planisyuczna
+   2. dokument
