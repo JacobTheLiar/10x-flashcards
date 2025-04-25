@@ -10,6 +10,8 @@
 - DTO Models: `./source/backend/src/main/java/pl/jit/flashcards/data/api_model`
 - DTO Requests: `./source/backend/src/main/java/pl/jit/flashcards/data/request`
 - DTO Responses: `./source/backend/src/main/java/pl/jit/flashcards/data/response`
+- Controller path: `./source/backend/src/main/java/pl/jit/flashcards/controller`
+- Service path: `./source/backend/src/main/java/pl/jit/flashcards/service`
 
 # Naming convention
 
