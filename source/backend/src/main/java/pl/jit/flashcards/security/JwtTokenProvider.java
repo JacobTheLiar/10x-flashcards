@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
-import jakarta.annotation.PostConstruct;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
@@ -19,18 +18,12 @@ import java.util.Objects;
 @Slf4j
 public class JwtTokenProvider {
 
-    private final Environment environment;
     @Getter
-    private long jwtExpirationAccessMs;
-    private long jwtExpirationRefreshMs;
-    private SecretKey signingKey;
+    private final long jwtExpirationAccessMs;
+    private final long jwtExpirationRefreshMs;
+    private final SecretKey signingKey;
 
     public JwtTokenProvider(Environment environment) {
-        this.environment = environment;
-    }
-
-    @PostConstruct
-    private void initialize() {
         String jwtSecret = Objects.requireNonNull(environment.getProperty("jwt.secret"), "jwt.secret must be set");
         this.jwtExpirationAccessMs = Long.parseLong(Objects.requireNonNull(environment.getProperty("jwt.expiration.access"), "jwt.expiration.access must be set"));
         this.jwtExpirationRefreshMs = Long.parseLong(Objects.requireNonNull(environment.getProperty("jwt.expiration.refresh"), "jwt.expiration.refresh must be set"));
@@ -69,7 +62,6 @@ public class JwtTokenProvider {
                 .signWith(getSigningKey(), Jwts.SIG.HS512)
                 .compact();
     }
-
 
     public boolean validateToken(String authToken) {
         try {
