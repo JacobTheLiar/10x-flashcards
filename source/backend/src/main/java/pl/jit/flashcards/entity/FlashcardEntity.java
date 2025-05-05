@@ -18,7 +18,7 @@ import java.util.UUID;
 @Table(name = "flashcards")
 public class FlashcardEntity {
     @Id
-    @ColumnDefault("gen_random_uuid()")
+    @GeneratedValue
     @Column(name = "id", nullable = false)
     private UUID id;
 

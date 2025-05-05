@@ -1,14 +1,10 @@
 package pl.jit.flashcards.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -19,23 +15,20 @@ import java.util.UUID;
 @Table(name = "users")
 public class UserEntity {
     @Id
-    @ColumnDefault("gen_random_uuid()")
+    @GeneratedValue
     @Column(name = "id", nullable = false)
     private UUID id;
 
     @Size(max = 255)
-    @NotNull
     @Column(name = "email", nullable = false)
     private String email;
 
     @Size(max = 255)
-    @NotNull
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
-    @NotNull
-    @ColumnDefault("(now() AT TIME ZONE 'utc'::text)")
-    @Column(name = "created_at", nullable = false)
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
     @Column(name = "last_login_at")

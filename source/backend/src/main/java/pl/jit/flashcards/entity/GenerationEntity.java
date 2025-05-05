@@ -1,9 +1,6 @@
 package pl.jit.flashcards.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -19,7 +16,7 @@ import java.util.UUID;
 @Table(name = "generations")
 public class GenerationEntity {
     @Id
-    @ColumnDefault("gen_random_uuid()")
+    @GeneratedValue
     @Column(name = "id", nullable = false)
     private UUID id;
 

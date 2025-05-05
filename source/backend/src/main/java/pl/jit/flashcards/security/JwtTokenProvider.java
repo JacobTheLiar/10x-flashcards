@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.Objects;
+import java.util.UUID;
 
 @Component
 @Slf4j
@@ -38,12 +39,20 @@ public class JwtTokenProvider {
     }
 
     public String generateAccessToken(Authentication authentication) {
-        String userId = authentication.getName();
+        Object principal = authentication.getPrincipal();
+        UUID userId;
+        if (principal instanceof UserDetailsImpl userDetails) {
+            userId = userDetails.getId();
+        } else {
+            log.error("Authentication principal is not an instance of UserDetailsImpl: {}", principal.getClass());
+            throw new IllegalArgumentException("Cannot generate access token: Invalid authentication principal type");
+        }
+
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationAccessMs);
 
         return Jwts.builder()
-                .subject(userId)
+                .subject(userId.toString())
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(getSigningKey(), Jwts.SIG.HS512)
@@ -51,12 +60,20 @@ public class JwtTokenProvider {
     }
 
     public String generateRefreshToken(Authentication authentication) {
-        String userId = authentication.getName();
+        Object principal = authentication.getPrincipal();
+        UUID userId;
+        if (principal instanceof UserDetailsImpl userDetails) {
+            userId = userDetails.getId();
+        } else {
+            log.error("Authentication principal is not an instance of UserDetailsImpl: {}", principal.getClass());
+            throw new IllegalArgumentException("Cannot generate refresh token: Invalid authentication principal type");
+        }
+
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationRefreshMs);
 
         return Jwts.builder()
-                .subject(userId)
+                .subject(userId.toString())
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(getSigningKey(), Jwts.SIG.HS512)

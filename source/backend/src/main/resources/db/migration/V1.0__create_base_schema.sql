@@ -1,16 +1,46 @@
 -- =============================================
 -- Migration: V1.0__create_base_schema.sql
 -- 
--- Autor: System
--- Data: 2023-10-05
+-- Autor: System / AI Assistant
+-- Data: 2023-10-05 / 2025-05-05
 -- 
--- Opis: Inicjalizacja schematu bazy danych dla aplikacji 10x Flashcards.
--- Tabele: users, generations, generation_errors, flashcards.
--- Implementacja Row Level Security (RLS) dla dostępu do danych.
+-- Opis: Skonsolidowana inicjalizacja schematu bazy danych dla aplikacji 10x Flashcards.
+--       - Tworzenie tabel: users, generations, generation_errors, flashcards.
+--       - Dodanie ograniczeń CHECK i indeksów.
+--       - Ustawienie domyślnej wartości user_id (z V1.1).
+--       - Nadanie uprawnień użytkownikowi aplikacji.
+--       - Implementacja Row Level Security (RLS).
 -- =============================================
 
 -- Rozpoczęcie transakcji
 begin;
+
+-- =============================================
+-- Funkcje Pomocnicze (muszą być przed użyciem)
+-- =============================================
+
+-- Funkcja pomocnicza do identyfikacji bieżącego użytkownika dla RLS i wartości domyślnych
+create or replace function current_user_id() returns uuid as
+$$
+begin
+    return current_setting('app.current_user_id', true)::uuid;
+exception
+    when others then
+        return null;
+end;
+$$ language plpgsql security definer;
+
+DO
+$do$
+    BEGIN
+        IF NOT EXISTS (
+            SELECT FROM pg_catalog.pg_roles
+            WHERE  rolname = '${app_username}') THEN
+
+            CREATE ROLE ${app_username} LOGIN PASSWORD '${app_password}';
+        END IF;
+    END
+$do$;
 
 -- =============================================
 -- Tworzenie tabel podstawowych
@@ -58,7 +88,8 @@ create table flashcards (
    generation_id uuid,
    front_content varchar(500) not null,
    back_content varchar(200) not null,
-   source_type varchar(20) not null check (source_type in ('ai-full', 'ai-modified', 'manual')),
+   source_type varchar(20) not null
+       constraint chk_flashcards_source_type check (source_type in ('ai-full', 'ai-edited', 'manual')),
    last_modified_at timestamp not null default (now() at time zone 'utc'),
    constraint fk_flashcards_user
       foreign key (user_id)
@@ -100,20 +131,29 @@ create index idx_flashcards_generation_id on flashcards(generation_id);
 create index idx_generations_user_id on generations(user_id);
 
 -- =============================================
--- Implementacja Row Level Security (RLS)
+-- Ustawienie wartości domyślnych (z V1.1)
 -- =============================================
 
--- Funkcja pomocnicza do identyfikacji bieżącego użytkownika
-create or replace function current_user_id() returns uuid as $$
-begin
-    -- Zwraca ID użytkownika z kontekstu sesji
-    -- Wartość ta jest ustawiana przez aplikację przy logowaniu
-    return current_setting('app.current_user_id', true)::uuid;
-exception
-    when others then
-        return null;
-end;
-$$ language plpgsql security definer;
+-- Ustawienie wartości domyślnej dla user_id w tabeli generations
+alter table generations
+    alter column user_id set default current_user_id();
+
+-- Ustawienie wartości domyślnej dla user_id w tabeli flashcards
+alter table flashcards
+    alter column user_id set default current_user_id();
+
+-- =============================================
+-- Nadanie uprawnień użytkownikowi aplikacji
+-- =============================================
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON users TO ${app_username};
+GRANT SELECT, INSERT, UPDATE, DELETE ON generations TO ${app_username};
+GRANT SELECT, INSERT, UPDATE, DELETE ON generation_errors TO ${app_username};
+GRANT SELECT, INSERT, UPDATE, DELETE ON flashcards TO ${app_username};
+
+-- =============================================
+-- Implementacja Row Level Security (RLS)
+-- =============================================
 
 -- Włączenie RLS dla tabeli flashcards
 alter table flashcards enable row level security;

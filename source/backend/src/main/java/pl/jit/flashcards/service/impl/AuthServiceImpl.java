@@ -53,7 +53,7 @@ public class AuthServiceImpl implements AuthService {
         newUser.setEmail(registerRequest.email());
         newUser.setPasswordHash(passwordEncoder.encode(registerRequest.password()));
 
-        UserEntity savedUser = userRepository.save(newUser);
+        UserEntity savedUser = userRepository.saveAndFlush(newUser);
         log.info("User successfully registered with ID: {}", savedUser.getId());
 
         return new RegisterResponse(savedUser.getId(), savedUser.getEmail(), savedUser.getCreatedAt());

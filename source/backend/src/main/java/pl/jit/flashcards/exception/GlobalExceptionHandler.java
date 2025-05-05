@@ -78,4 +78,32 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorResponse, status);
     }
+
+    @ExceptionHandler(UserAlreadyExistsException.class) // <--- Nowy handler
+    public ResponseEntity<ErrorResponse> handleUserAlreadyExists(UserAlreadyExistsException ex, HttpServletRequest request) {
+        log.warn("Attempt to register with existing email: {}", ex.getMessage());
+        HttpStatus status = HttpStatus.CONFLICT; // Ustawiamy status 409 Conflict
+        ErrorResponse errorResponse = new ErrorResponse(
+                Instant.now(),
+                status.value(),
+                status.getReasonPhrase(),
+                ex.getMessage(), // Używamy wiadomości z wyjątku
+                request.getRequestURI()
+        );
+        return new ResponseEntity<>(errorResponse, status);
+    }
+
+    @ExceptionHandler(InvalidTokenException.class) // <--- Dodajemy też handler dla InvalidTokenException (przewidując)
+    public ResponseEntity<ErrorResponse> handleInvalidToken(InvalidTokenException ex, HttpServletRequest request) {
+        log.warn("Invalid token: {}", ex.getMessage());
+        HttpStatus status = HttpStatus.UNAUTHORIZED; // Ustawiamy status 401 Unauthorized
+        ErrorResponse errorResponse = new ErrorResponse(
+                Instant.now(),
+                status.value(),
+                status.getReasonPhrase(),
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        return new ResponseEntity<>(errorResponse, status);
+    }
 }
