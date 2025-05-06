@@ -10,20 +10,21 @@ import pl.jit.flashcards.data.FlashcardSourceType;
 import pl.jit.flashcards.data.api_model.FlashcardApiModel;
 import pl.jit.flashcards.data.response.StartReviewSessionResponse;
 import pl.jit.flashcards.entity.FlashcardEntity;
+import pl.jit.flashcards.exception.ResourceNotFoundException;
 import pl.jit.flashcards.mapper.FlashcardMapper;
 import pl.jit.flashcards.repository.FlashcardRepository;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ReviewSessionServiceImplTest {
-
-    private static final int DEFAULT_REVIEW_SIZE = 10;
 
     @Mock
     private FlashcardRepository flashcardRepository;
@@ -46,7 +47,7 @@ class ReviewSessionServiceImplTest {
         FlashcardApiModel apiModel2 = new FlashcardApiModel(entity2.getId(), "Q2", "A2", FlashcardSourceType.AI_FULL, Instant.now());
         List<FlashcardApiModel> mockApiModels = List.of(apiModel1, apiModel2);
 
-        when(flashcardRepository.findRandomFlashcards(DEFAULT_REVIEW_SIZE)).thenReturn(mockEntities);
+        when(flashcardRepository.findRandomFlashcards(ReviewSessionServiceImpl.DEFAULT_REVIEW_SIZE)).thenReturn(mockEntities);
         when(flashcardMapper.toApiModelList(mockEntities)).thenReturn(mockApiModels);
 
         StartReviewSessionResponse actualResponse = reviewSessionService.startReviewSession();
@@ -55,30 +56,21 @@ class ReviewSessionServiceImplTest {
         softly.assertThat(actualResponse).isNotNull();
         softly.assertThat(actualResponse.flashcards()).isEqualTo(mockApiModels);
 
-        verify(flashcardRepository).findRandomFlashcards(DEFAULT_REVIEW_SIZE);
+        verify(flashcardRepository).findRandomFlashcards(ReviewSessionServiceImpl.DEFAULT_REVIEW_SIZE);
         verify(flashcardMapper).toApiModelList(mockEntities);
 
         softly.assertAll();
     }
 
     @Test
-    void startReviewSession_shouldReturnEmptyList_whenNoFlashcardsExist() {
-        List<FlashcardEntity> emptyEntityList = List.of();
-        List<FlashcardApiModel> emptyApiModelList = List.of();
+    void startReviewSession_shouldThrowResourceNotFoundException_whenNoFlashcardsExist() {
+        when(flashcardRepository.findRandomFlashcards(ReviewSessionServiceImpl.DEFAULT_REVIEW_SIZE))
+                .thenReturn(Collections.emptyList());
 
-        when(flashcardRepository.findRandomFlashcards(DEFAULT_REVIEW_SIZE)).thenReturn(emptyEntityList);
-        when(flashcardMapper.toApiModelList(emptyEntityList)).thenReturn(emptyApiModelList);
+        assertThatThrownBy(() -> reviewSessionService.startReviewSession())
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessageContaining("No flashcards available for review");
 
-        StartReviewSessionResponse actualResponse = reviewSessionService.startReviewSession();
-
-        SoftAssertions softly = new SoftAssertions();
-        softly.assertThat(actualResponse).isNotNull();
-        softly.assertThat(actualResponse.flashcards()).isNotNull();
-        softly.assertThat(actualResponse.flashcards()).isEmpty();
-
-        verify(flashcardRepository).findRandomFlashcards(DEFAULT_REVIEW_SIZE);
-        verify(flashcardMapper).toApiModelList(emptyEntityList);
-
-        softly.assertAll();
+        verify(flashcardRepository).findRandomFlashcards(ReviewSessionServiceImpl.DEFAULT_REVIEW_SIZE);
     }
 }

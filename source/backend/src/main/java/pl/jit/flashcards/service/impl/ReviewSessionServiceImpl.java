@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.jit.flashcards.data.api_model.FlashcardApiModel;
 import pl.jit.flashcards.data.response.StartReviewSessionResponse;
 import pl.jit.flashcards.entity.FlashcardEntity;
+import pl.jit.flashcards.exception.ResourceNotFoundException;
 import pl.jit.flashcards.mapper.FlashcardMapper;
 import pl.jit.flashcards.repository.FlashcardRepository;
 import pl.jit.flashcards.service.ReviewSessionService;
@@ -18,7 +19,7 @@ import java.util.List;
 @Slf4j
 public class ReviewSessionServiceImpl implements ReviewSessionService {
 
-    private static final int DEFAULT_REVIEW_SIZE = 10;
+    public static final int DEFAULT_REVIEW_SIZE = 10;
 
     private final FlashcardRepository flashcardRepository;
     private final FlashcardMapper flashcardMapper;
@@ -31,7 +32,8 @@ public class ReviewSessionServiceImpl implements ReviewSessionService {
         List<FlashcardEntity> randomFlashcards = flashcardRepository.findRandomFlashcards(DEFAULT_REVIEW_SIZE);
 
         if (randomFlashcards.isEmpty()) {
-            log.warn("No flashcards found for the current user to start a review session.");
+            log.warn("No flashcards found for the current user to start a review session. Throwing ResourceNotFoundException.");
+            throw new ResourceNotFoundException("No flashcards available for review for the current user.");
         }
 
         List<FlashcardApiModel> flashcardApis = flashcardMapper.toApiModelList(randomFlashcards);

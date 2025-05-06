@@ -25,7 +25,7 @@ class AuthControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private ObjectMapper objectMapper; // For converting objects to JSON
+    private ObjectMapper objectMapper;
 
     @Test
     void shouldRegisterUserSuccessfully() throws Exception {
