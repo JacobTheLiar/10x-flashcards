@@ -45,6 +45,33 @@ services:
     networks:
       - flashcards-network
 
+  # Usługa Ollama
+  ollama:
+    build:
+      context: ./docker/ollama
+      dockerfile: Dockerfile
+    container_name: flashcards-ollama
+    restart: unless-stopped
+    pull_policy: always
+    volumes:
+      - ollama-data:/root/.ollama
+    networks:
+      - flashcards-network
+    ports:
+      - "11434:11434"
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_NUM_PARALLEL=2
+      - OLLAMA_MAX_LOADED_MODELS=1
+    deploy:
+      resources:
+        reservations:
+          cpus: '2.0'
+          memory: 8G
+        limits:
+          cpus: '3.5'
+          memory: 12G
+
 # Definicja sieci
 networks:
   flashcards-network:
@@ -53,4 +80,6 @@ networks:
 # Definicja wolumenów dla trwałości danych
 volumes:
   postgres-data:
+    driver: local
+  ollama-data:
     driver: local
