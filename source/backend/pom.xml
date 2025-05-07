@@ -145,7 +145,8 @@
 							<goal>compile</goal>
 						</goals>
 					</execution>
-				</executions>				<configuration>
+				</executions>
+				<configuration>
 					<annotationProcessorPaths>
 						<!-- Lombok processor -->
 						<path>
