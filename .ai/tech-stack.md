@@ -21,7 +21,7 @@
 
 ## AI/LLM
 - **Ollama** w kontenerze Docker
-- Model **Mistral 7B Instruct**
+- Model **gemma2:2b**
 - **LangChain4j** - integracja z LLM w aplikacji Java
 
 ## DevOps/Infrastruktura

@@ -23,6 +23,7 @@
 		<lombok.version>1.18.36</lombok.version>
 		<lombok-mapstruct.version>0.2.0</lombok-mapstruct.version>
 		<testcontainers.version>1.19.8</testcontainers.version>
+		<langchain4j.version>0.36.2</langchain4j.version>
 	</properties>
 
 	<dependencyManagement>
@@ -106,6 +107,11 @@
             <artifactId>commons-codec</artifactId>
 			<version>1.15</version>
         </dependency>
+		<!-- Jackson JSR310 -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-jsr310</artifactId>
+		</dependency>
 		<!-- JWT Support -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
@@ -123,6 +129,17 @@
 			<artifactId>jjwt-jackson</artifactId>
 			<version>0.12.6</version>
 			<scope>runtime</scope>
+		</dependency>
+		<!-- LangChain4j -->
+		<dependency>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j</artifactId>
+			<version>${langchain4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j-ollama</artifactId>
+			<version>${langchain4j.version}</version>
 		</dependency>
 		<!-- Testy -->
 		<dependency>

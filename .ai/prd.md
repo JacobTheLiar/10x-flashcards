@@ -6,7 +6,9 @@ Produkt ma na celu ułatwienie nauki poprzez automatyczne generowanie fiszek edu
 - Przeglądaniu, edycji oraz usuwaniu fiszek w formie siatki (3-4 kolumn).
 - Systemie powtórek, który umożliwia nawigację między fiszkami oraz zakończenie sesji, przekierowując użytkownika do ekranu generowania.
 
-Interfejs użytkownika zostanie stworzony jako one-pager oparty o Angular oraz Angular Material, przeznaczony dla przeglądarek desktopowych. Aplikacja uruchomiona będzie w środowisku docker-compose z modelem AI (Ollama/Mistral 7B Instruct) oraz na infrastrukturze VPS (16GB RAM, 4 rdzenie, 50GB dysku).
+Interfejs użytkownika zostanie stworzony jako one-pager oparty o Angular oraz Angular Material, przeznaczony dla
+przeglądarek desktopowych. Aplikacja uruchomiona będzie w środowisku docker-compose z modelem AI (Ollama/gemma2:2b) oraz
+na infrastrukturze VPS (16GB RAM, 4 rdzenie, 50GB dysku).
 
 ## 2. Problem użytkownika
 Głównym problemem jest to, że tworzenie fiszek ręcznie jest czasochłonne i pracochłonne. Użytkownicy, chcąc korzystać z metody spaced repetition, często rezygnują z ręcznego generowania fiszek, co wpływa negatywnie na efektywność nauki. Automatyzacja tego procesu przez inteligentne generowanie treści pozwoli:
@@ -146,7 +148,8 @@ Głównym problemem jest to, że tworzenie fiszek ręcznie jest czasochłonne i 
 
 4. **Stabilność i szybkość działania:**
     - System powinien poprawnie wyświetlać fiszki oraz umożliwić płynną nawigację między trybami.
-    - Czas generowania fiszek oraz przetwarzania powtórek nie powinien przekraczać oczekiwanych granic czasowych dla przeglądarek desktopowych.
+   - Czas generowania fiszek nie powinien przekraczać 5 minut dla maksymalnej długości tekstu (10 000 znaków).
+   - Przetwarzanie powtórek powinno odbywać się bez zauważalnych opóźnień.
 
 5. **Bezpieczeństwo:**
     - System uwierzytelniania powinien zapewnić bezpieczny dostęp do kont użytkowników.
