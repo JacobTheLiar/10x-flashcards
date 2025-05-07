@@ -21,6 +21,7 @@
 		<mapstruct.version>1.5.5.Final</mapstruct.version>
 		<flyway.version>10.20.1</flyway.version>
 		<lombok.version>1.18.36</lombok.version>
+		<lombok-mapstruct.version>0.2.0</lombok-mapstruct.version>
 		<testcontainers.version>1.19.8</testcontainers.version>
 	</properties>
 
@@ -93,6 +94,12 @@
 			<optional>true</optional>
 			<version>${lombok.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok-mapstruct-binding</artifactId>
+			<version>${lombok-mapstruct.version}</version>
+			<scope>provided</scope>
+		</dependency>
         <!-- Apache Commons Codec -->
         <dependency>
             <groupId>commons-codec</groupId>
@@ -130,7 +137,15 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
+				<executions>
+					<execution>
+						<id>pre-compile</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>compile</goal>
+						</goals>
+					</execution>
+				</executions>				<configuration>
 					<annotationProcessorPaths>
 						<!-- Lombok processor -->
 						<path>
@@ -143,6 +158,12 @@
 							<groupId>org.mapstruct</groupId>
 							<artifactId>mapstruct-processor</artifactId>
 							<version>${mapstruct.version}</version>
+						</path>
+						<!-- Lomboka + MapStruct binding -->
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok-mapstruct-binding</artifactId>
+							<version>${lombok-mapstruct.version}</version>
 						</path>
 					</annotationProcessorPaths>
 				</configuration>
