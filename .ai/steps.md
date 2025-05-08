@@ -23,8 +23,18 @@
 5. Wygenerowanie pliku migracji bazy danych dla flyway [V1.0__create_base_schema.sql];☑️🤖
    1. Dostosowanie BE;
    2. Migracja do najnowszej wersji;
-6. Wygenerowanie Encji na podstawie bazy danych [backend]; ☑️🔨
-7. Wygenerowanie Repozytoriów i dostosowanie konfuguracji [backend];☑️🤖
+6. Wygenerowanie Encji na podstawie bazy danych [back-end]; ☑️🔨
+7. Wygenerowanie Repozytoriów i dostosowanie konfiguracji [back-end];☑️🤖
 8. API Endpoints: ☑️🤖
-   1. sesja planisyuczna
+   1. sesja planistyczna
    2. dokument
+9. Implementacja API: ☑️🤖
+10. Implementacja Docker File z Ollama: ☑️🤖
+    1. Dostosowanie ustawień do pełnego uruchomienia w środowisku Docker: ☑️🔨
+11. Uruchomienie projektu front-end: ☑️🔨
+    1. zmiana package manager: ☑️🔨
+    2. dodanie zależności do generowania klas na podstawie API: ☑️🔨
+    3. wygenerowanie klas powiązanych z API: ☑️🔨
+12. Sesja planistyczna UI: ☑️🤖
+    1. sesja planistyczna
+    2. ui-plan.md
