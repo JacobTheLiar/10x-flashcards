@@ -1,0 +1,7 @@
+{
+  "removeStaleFiles": true,
+  "enumStyle": "upper",
+  "ignoreUnusedModels": false,
+  "input": "./api/api-specification.json",
+  "output": "./api/generated/"
+}

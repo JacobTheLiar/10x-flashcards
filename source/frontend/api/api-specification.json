@@ -1,0 +1,521 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Generated server url"
+    }
+  ],
+  "paths": {
+    "/api/flashcards/{flashcardId}": {
+      "put": {
+        "tags": [
+          "flashcard-controller"
+        ],
+        "operationId": "updateFlashcard",
+        "parameters": [
+          {
+            "name": "flashcardId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFlashcardRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlashcardApiModel"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "flashcard-controller"
+        ],
+        "operationId": "deleteFlashcard",
+        "parameters": [
+          {
+            "name": "flashcardId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/api/review-sessions": {
+      "post": {
+        "tags": [
+          "review-session-controller"
+        ],
+        "operationId": "startReviewSession",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartReviewSessionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/generations": {
+      "post": {
+        "tags": [
+          "generation-controller"
+        ],
+        "operationId": "generateFlashcards",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GenerateFlashcardsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/GenerateFlashcardsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/flashcards": {
+      "get": {
+        "tags": [
+          "flashcard-controller"
+        ],
+        "operationId": "getAllUserFlashcards",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetAllFlashcardsResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "flashcard-controller"
+        ],
+        "operationId": "saveFlashcards",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveFlashcardsRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/SaveFlashcardsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "tags": [
+          "auth-controller"
+        ],
+        "operationId": "register",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/refresh-token": {
+      "post": {
+        "tags": [
+          "auth-controller"
+        ],
+        "operationId": "refreshToken",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/RefreshTokenResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "auth-controller"
+        ],
+        "operationId": "login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UpdateFlashcardRequest": {
+        "type": "object",
+        "properties": {
+          "frontContent": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0
+          },
+          "backContent": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        }
+      },
+      "FlashcardApiModel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "frontContent": {
+            "type": "string"
+          },
+          "backContent": {
+            "type": "string"
+          },
+          "sourceType": {
+            "type": "string",
+            "enum": [
+              "ai-full",
+              "ai-edited",
+              "manual"
+            ]
+          },
+          "lastModifiedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "StartReviewSessionResponse": {
+        "type": "object",
+        "properties": {
+          "flashcards": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlashcardApiModel"
+            }
+          }
+        }
+      },
+      "GenerateFlashcardsRequest": {
+        "type": "object",
+        "properties": {
+          "sourceText": {
+            "type": "string",
+            "maxLength": 10000,
+            "minLength": 0
+          }
+        }
+      },
+      "FlashcardSuggestionApiModel": {
+        "type": "object",
+        "properties": {
+          "frontContent": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0
+          },
+          "backContent": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        }
+      },
+      "GenerateFlashcardsResponse": {
+        "type": "object",
+        "properties": {
+          "generationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "generationTimeMs": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "suggestedFlashcards": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlashcardSuggestionApiModel"
+            }
+          }
+        }
+      },
+      "CreateFlashcardRequest": {
+        "type": "object",
+        "properties": {
+          "frontContent": {
+            "type": "string",
+            "maxLength": 500,
+            "minLength": 0
+          },
+          "backContent": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 0
+          },
+          "sourceType": {
+            "type": "string",
+            "enum": [
+              "ai-full",
+              "ai-edited",
+              "manual"
+            ]
+          }
+        },
+        "required": [
+          "sourceType"
+        ]
+      },
+      "SaveFlashcardsRequest": {
+        "type": "object",
+        "properties": {
+          "generationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "flashcards": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateFlashcardRequest"
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "generationId"
+        ]
+      },
+      "SaveFlashcardsResponse": {
+        "type": "object",
+        "properties": {
+          "savedCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "flashcards": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlashcardApiModel"
+            }
+          }
+        }
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "minLength": 1
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$"
+          }
+        }
+      },
+      "RegisterResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "RefreshTokenRequest": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "RefreshTokenResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "minLength": 1
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "expiresIn": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "GetAllFlashcardsResponse": {
+        "type": "object",
+        "properties": {
+          "flashcards": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlashcardApiModel"
+            }
+          }
+        }
+      }
+    }
+  }
+}
