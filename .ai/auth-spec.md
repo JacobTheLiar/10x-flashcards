@@ -9,32 +9,32 @@
 - **Ścieżka:** `/login`
 - **Technologia:** Komponent standaloneowy Angular 19.2
 - Struktura HTML:
-  - Formularz logowania z polami email i hasło
-  - Przycisk logowania
-  - Link do widoku rejestracji
-  - Komunikaty błędów
+    - Formularz logowania z polami email i hasło
+    - Przycisk logowania
+    - Link do widoku rejestracji
+    - Komunikaty błędów
 - Funkcjonalność:
-  - Obsługa formularza z wykorzystaniem FormBuilder
-  - Walidacja pól w czasie rzeczywistym
-  - Wyświetlanie błędów walidacji i autentykacji
-  - Blokowanie przycisku logowania podczas trwania procesu
-  - Automatyczne przekierowanie do widoku generowania fiszek po pomyślnym zalogowaniu
+    - Obsługa formularza z wykorzystaniem FormBuilder
+    - Walidacja pól w czasie rzeczywistym
+    - Wyświetlanie błędów walidacji i autentykacji
+    - Blokowanie przycisku logowania podczas trwania procesu
+    - Automatyczne przekierowanie do widoku generowania fiszek po pomyślnym zalogowaniu
 
 #### 1.1.2. Komponent rejestracji (`RegisterComponent`)
 
 - **Ścieżka:** `/register`
 - **Technologia:** Komponent standaloneowy Angular 19.2
 - Struktura HTML:
-  - Formularz rejestracji z polami: email, hasło, potwierdzenie hasła
-  - Przycisk rejestracji
-  - Link do widoku logowania
-  - Komunikaty błędów
+    - Formularz rejestracji z polami: email, hasło, potwierdzenie hasła
+    - Przycisk rejestracji
+    - Link do widoku logowania
+    - Komunikaty błędów
 - Funkcjonalność:
-  - Obsługa formularza z wykorzystaniem FormBuilder
-  - Walidacja pól (format email, złożoność hasła, zgodność haseł)
-  - Wyświetlanie błędów walidacji i rejestracji
-  - Blokowanie przycisku rejestracji podczas trwania procesu
-  - Automatyczne przekierowanie do widoku logowania po pomyślnej rejestracji
+    - Obsługa formularza z wykorzystaniem FormBuilder
+    - Walidacja pól (format email, złożoność hasła, zgodność haseł)
+    - Wyświetlanie błędów walidacji i rejestracji
+    - Blokowanie przycisku rejestracji podczas trwania procesu
+    - Automatyczne przekierowanie do widoku logowania po pomyślnej rejestracji
 
 ### 1.2. Serwisy i modele
 
@@ -42,9 +42,9 @@
 
 ```typescript
 export interface User {
-  id: string;
-  email: string;
-  createdAt: string;
+  id?: string;
+  email?: string;
+  createdAt?: string;
 }
 ```
 
@@ -52,23 +52,38 @@ export interface User {
 
 ```typescript
 export interface LoginRequest {
-  email: string;
-  password: string;
+  email?: string;
+  password?: string;
 }
 
 export interface RegisterRequest {
-  email: string;
-  password: string;
+  email?: string;
+  password?: string;
+}
+
+export interface RefreshTokenRequest {
+  refreshToken?: string;
 }
 ```
 
 #### 1.2.3. Model odpowiedzi autoryzacji
 
 ```typescript
-export interface AuthResponse {
-  accessToken: string;
-  refreshToken: string;
-  expiresIn: number;
+export interface LoginResponse {
+  accessToken?: string;
+  refreshToken?: string;
+  expiresIn?: number;
+}
+
+export interface RegisterResponse {
+  id?: string;
+  email?: string;
+  createdAt?: string;
+}
+
+export interface RefreshTokenResponse {
+  accessToken?: string;
+  expiresIn?: number;
 }
 ```
 
@@ -78,8 +93,8 @@ export interface AuthResponse {
 
 ```typescript
 const routes: Routes = [
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
+  { path: 'login', component: LoginComponent, canMatch: [unauthorizedGuard] },
+  { path: 'register', component: RegisterComponent, canMatch: [unauthorizedGuard] },
   {
     path: '',
     canMatch: [isAuthenticatedGuard],
@@ -106,6 +121,16 @@ export const isAuthenticatedGuard = () => {
     map(isAuthenticated => isAuthenticated || router.createUrlTree(['/login']))
   );
 };
+
+export const unauthorizedGuard = () => {
+  const authFacade = inject(AuthFacade);
+  const router = inject(Router);
+  
+  return authFacade.isAuthenticated$.pipe(
+    take(1),
+    map(isAuthenticated => !isAuthenticated || router.createUrlTree(['/generate']))
+  );
+};
 ```
 
 ### 1.4. Walidacja formularzy
@@ -126,8 +151,7 @@ const registerForm = this.fb.nonNullable.group({
   email: ['', [Validators.required, Validators.email]],
   password: ['', [
     Validators.required,
-    Validators.minLength(8),
-    passwordStrengthValidator()
+    Validators.minLength(8)
   ]],
   confirmPassword: ['', Validators.required]
 }, { validators: passwordMatchValidator });
@@ -136,21 +160,6 @@ const registerForm = this.fb.nonNullable.group({
 #### 1.4.3. Własne walidatory
 
 ```typescript
-export function passwordStrengthValidator(): ValidatorFn {
-  return (control: AbstractControl): ValidationErrors | null => {
-    const value = control.value;
-    if (!value) return null;
-    
-    const hasUpperCase = /[A-Z]/.test(value);
-    const hasLowerCase = /[a-z]/.test(value);
-    const hasNumeric = /[0-9]/.test(value);
-    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(value);
-    
-    const valid = hasUpperCase && hasLowerCase && hasNumeric && hasSpecialChar;
-    return !valid ? { passwordStrength: true } : null;
-  };
-}
-
 export function passwordMatchValidator(control: AbstractControl): ValidationErrors | null {
   const password = control.get('password');
   const confirmPassword = control.get('confirmPassword');
@@ -195,7 +204,7 @@ export const login = createAction(
 
 export const loginSuccess = createAction(
   '[Auth] Login Success',
-  props<{ user: User; accessToken: string; refreshToken: string; expiresIn: number }>()
+  props<{ accessToken: string; refreshToken: string; expiresIn: number }>()
 );
 
 export const loginFailure = createAction(
@@ -209,7 +218,8 @@ export const register = createAction(
 );
 
 export const registerSuccess = createAction(
-  '[Auth] Register Success'
+  '[Auth] Register Success',
+  props<{ user: User }>()
 );
 
 export const registerFailure = createAction(
@@ -252,14 +262,14 @@ export const authFeature = createFeature({
       isLoading: true,
       error: null
     })),
-    on(AuthActions.loginSuccess, (state, { user, accessToken, refreshToken, expiresIn }) => ({
+    on(AuthActions.loginSuccess, (state, { accessToken, refreshToken, expiresIn }) => ({
       ...state,
-      user,
       accessToken,
       refreshToken,
       tokenExpiration: Date.now() + expiresIn * 1000,
       isLoading: false,
-      error: null
+      error: null,
+      user: state.user // Użytkownik zostanie zaktualizowany w efekcie login$
     })),
     on(AuthActions.loginFailure, (state, { error }) => ({
       ...state,
@@ -271,9 +281,10 @@ export const authFeature = createFeature({
       isLoading: true,
       error: null
     })),
-    on(AuthActions.registerSuccess, (state) => ({
+    on(AuthActions.registerSuccess, (state, { user }) => ({
       ...state,
-      isLoading: false
+      isLoading: false,
+      user
     })),
     on(AuthActions.registerFailure, (state, { error }) => ({
       ...state,
@@ -293,57 +304,39 @@ export const authFeature = createFeature({
       refreshToken: null,
       tokenExpiration: null
     })),
+      on(AuthActions.setUser, (state, {user}) => ({
+          ...state,
+          user
+      })),
     on(AuthActions.logout, () => initialState)
   )
 });
 
-export const {
-  name,
-  reducer,
-  selectUser,
-  selectAccessToken,
-  selectRefreshToken,
-  selectTokenExpiration,
-  selectIsLoading,
-  selectError
-} = authFeature;
-```
+// ... (pozostała część kodu)
 
-### 2.4. Selektory autoryzacji
-
-```typescript
-export const selectIsAuthenticated = createSelector(
-  selectUser,
-  selectAccessToken,
-  (user, token) => !!user && !!token
-);
-
-export const selectShouldRefreshToken = createSelector(
-  selectAccessToken,
-  selectTokenExpiration,
-  (token, expiration) => {
-    if (!token || !expiration) return false;
-    // Odśwież token, gdy zostało mniej niż 5 minut do wygaśnięcia
-    return !!token && expiration - Date.now() < 5 * 60 * 1000;
-  }
-);
-```
-
-### 2.5. Efekty autoryzacji (`auth.effects.ts`)
-
-```typescript
 export class AuthEffects {
   login$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AuthActions.login),
       exhaustMap(({ email, password }) =>
         this.authService.login(email, password).pipe(
-          map(response => AuthActions.loginSuccess({
-            user: response.user,
-            accessToken: response.accessToken,
-            refreshToken: response.refreshToken,
-            expiresIn: response.expiresIn
-          })),
+          map(response => {
+            const user = this.authService.decodeToken(response.accessToken || '');
+              if (user) {
+                  this.store.dispatch(AuthActions.setUser({
+                      user: {
+                          id: user.sub,
+                          email: user.email,
+                          createdAt: user.createdAt
+                      }
+                  }));
+              }
+            return AuthActions.loginSuccess({
+              accessToken: response.accessToken || '',
+              refreshToken: response.refreshToken || '',
+              expiresIn: response.expiresIn || 3600
+            });
+          }),
           catchError(error => of(AuthActions.loginFailure({
             error: error.error?.message || 'Błąd logowania'
           })))
@@ -352,71 +345,7 @@ export class AuthEffects {
     )
   );
 
-  loginSuccess$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AuthActions.loginSuccess),
-      tap(({ accessToken, refreshToken, expiresIn }) => {
-        this.authService.saveAuthData(accessToken, refreshToken, expiresIn);
-        this.router.navigate(['/generate']);
-      })
-    ),
-    { dispatch: false }
-  );
-
-  register$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AuthActions.register),
-      exhaustMap(({ email, password }) =>
-        this.authService.register(email, password).pipe(
-          map(() => AuthActions.registerSuccess()),
-          catchError(error => of(AuthActions.registerFailure({
-            error: error.error?.message || 'Błąd rejestracji'
-          })))
-        )
-      )
-    )
-  );
-
-  registerSuccess$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AuthActions.registerSuccess),
-      tap(() => {
-        this.router.navigate(['/login']);
-      })
-    ),
-    { dispatch: false }
-  );
-
-  refreshToken$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AuthActions.refreshToken),
-      withLatestFrom(this.store.select(selectRefreshToken)),
-      exhaustMap(([_, refreshToken]) => {
-        if (!refreshToken) {
-          return of(AuthActions.logout());
-        }
-        
-        return this.authService.refreshToken(refreshToken).pipe(
-          map(response => AuthActions.refreshTokenSuccess({
-            accessToken: response.accessToken,
-            expiresIn: response.expiresIn
-          })),
-          catchError(() => of(AuthActions.logout()))
-        );
-      })
-    )
-  );
-
-  logout$ = createEffect(() =>
-    this.actions$.pipe(
-      ofType(AuthActions.logout),
-      tap(() => {
-        this.authService.clearAuthData();
-        this.router.navigate(['/login']);
-      })
-    ),
-    { dispatch: false }
-  );
+    // ... (pozostała część kodu)
 
   autoLogin$ = createEffect(() =>
     this.actions$.pipe(
@@ -427,15 +356,23 @@ export class AuthEffects {
           return AuthActions.logout();
         }
         
-        const { accessToken, refreshToken, expirationDate, user } = authData;
+        const { accessToken, refreshToken, expirationDate } = authData;
         const expiresIn = (expirationDate.getTime() - Date.now()) / 1000;
         
         if (expiresIn <= 0) {
           return AuthActions.refreshToken();
         }
+
+        const user = this.authService.decodeToken(accessToken);
+        this.store.dispatch(AuthActions.setUser({
+          user: {
+            id: user?.sub,
+            email: user?.email,
+            createdAt: user?.createdAt
+          }
+        }));
         
         return AuthActions.loginSuccess({
-          user,
           accessToken,
           refreshToken,
           expiresIn
@@ -505,55 +442,34 @@ export class AuthFacade {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly AUTH_DATA_KEY = 'authData';
-  private tokenExpirationTimer: any;
   
-  constructor(private http: HttpClient) {}
+  constructor(private authController: AuthControllerService) {}
   
-  register(email: string, password: string): Observable<User> {
-    return this.http.post<User>('/api/auth/register', { email, password });
+  register(email: string, password: string): Observable<RegisterResponse> {
+    return this.authController.register({ body: { email, password } });
   }
   
-  login(email: string, password: string): Observable<AuthResponse & { user: User }> {
-    return this.http.post<AuthResponse>('/api/auth/login', { email, password }).pipe(
-      map(response => {
-        // Dekodowanie tokenu JWT, aby uzyskać informacje o użytkowniku
-        const decodedToken = this.decodeToken(response.accessToken);
-        return {
-          ...response,
-          user: {
-            id: decodedToken.sub,
-            email: decodedToken.email,
-            createdAt: decodedToken.createdAt
-          }
-        };
-      })
-    );
+  login(email: string, password: string): Observable<LoginResponse> {
+    return this.authController.login({ body: { email, password } });
   }
   
-  refreshToken(refreshToken: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>('/api/auth/refresh-token', { refreshToken });
+  refreshToken(refreshToken: string): Observable<RefreshTokenResponse> {
+    return this.authController.refreshToken({ body: { refreshToken } });
   }
   
   saveAuthData(accessToken: string, refreshToken: string, expiresIn: number): void {
     const expirationDate = new Date(Date.now() + expiresIn * 1000);
-    const user = this.decodeToken(accessToken);
     
     const authData = {
       accessToken,
       refreshToken,
-      expirationDate,
-      user: {
-        id: user.sub,
-        email: user.email,
-        createdAt: user.createdAt
-      }
+      expirationDate
     };
     
     localStorage.setItem(this.AUTH_DATA_KEY, JSON.stringify(authData));
-    this.setAutoLogoutTimer(expiresIn * 1000);
   }
   
-  getAuthData(): { accessToken: string; refreshToken: string; expirationDate: Date; user: User } | null {
+  getAuthData(): { accessToken: string; refreshToken: string; expirationDate: Date } | null {
     const authDataStr = localStorage.getItem(this.AUTH_DATA_KEY);
     if (!authDataStr) return null;
     
@@ -566,22 +482,9 @@ export class AuthService {
   
   clearAuthData(): void {
     localStorage.removeItem(this.AUTH_DATA_KEY);
-    if (this.tokenExpirationTimer) {
-      clearTimeout(this.tokenExpirationTimer);
-    }
-    this.tokenExpirationTimer = null;
   }
   
-  private setAutoLogoutTimer(duration: number): void {
-    if (this.tokenExpirationTimer) {
-      clearTimeout(this.tokenExpirationTimer);
-    }
-    this.tokenExpirationTimer = setTimeout(() => {
-      // Sprawdzenie, czy można odświeżyć token - jeśli nie, wylogowanie
-    }, duration);
-  }
-  
-  private decodeToken(token: string): any {
+  decodeToken(token: string): any {
     try {
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -660,23 +563,20 @@ export class AuthInterceptor implements HttpInterceptor {
         take(1),
         switchMap(refreshToken => {
           if (!refreshToken) {
+            this.isRefreshing = false;
             this.authFacade.logout();
             return EMPTY;
           }
           
-          return this.authFacade.refreshToken().pipe(
-            switchMap(() => {
+          this.authFacade.refreshToken();
+          
+          return this.store.select(selectAccessToken).pipe(
+            skipWhile(token => !token),
+            take(1),
+            switchMap(newToken => {
               this.isRefreshing = false;
-              
-              return this.store.select(selectAccessToken).pipe(
-                take(1),
-                switchMap(newToken => {
-                  if (!newToken) return EMPTY;
-                  
-                  this.refreshTokenSubject.next(newToken);
-                  return next.handle(this.addToken(request, newToken));
-                })
-              );
+              this.refreshTokenSubject.next(newToken);
+              return next.handle(this.addToken(request, newToken!));
             }),
             catchError(() => {
               this.isRefreshing = false;
@@ -709,21 +609,7 @@ export const authInterceptorProvider = {
 
 ## 4. ZABEZPIECZENIA
 
-### 4.1. Obsługa nieautoryzowanego dostępu
-
-```typescript
-export const unauthorizedGuard = () => {
-  const authFacade = inject(AuthFacade);
-  const router = inject(Router);
-  
-  return authFacade.isAuthenticated$.pipe(
-    take(1),
-    map(isAuthenticated => !isAuthenticated || router.createUrlTree(['/generate']))
-  );
-};
-```
-
-### 4.2. Inicjalizacja stanu autoryzacji przy starcie aplikacji
+### 4.1. Inicjalizacja stanu autoryzacji przy starcie aplikacji
 
 ```typescript
 @Injectable({ providedIn: 'root' })
@@ -745,76 +631,36 @@ export const appInitializerProvider = {
 };
 ```
 
-### 4.3. Strategia bezpieczeństwa tokenów JWT
-
-```typescript
-@Injectable({ providedIn: 'root' })
-export class TokenRefreshService {
-  constructor(private authFacade: AuthFacade) {}
-  
-  startTokenRefreshTimer(): void {
-    this.authFacade.shouldRefreshToken$.pipe(
-      filter(shouldRefresh => shouldRefresh),
-      tap(() => this.authFacade.refreshToken())
-    ).subscribe();
-  }
-}
-```
-
-### 4.4. Bezpieczne przechowywanie tokenów
+### 4.2. Bezpieczne przechowywanie tokenów
 
 W celu zwiększenia bezpieczeństwa, tokeny są przechowywane w localStorage, ale z następującymi zabezpieczeniami:
 
 1. **Tokeny krótkoterminowe**:
-   - Access token wygasa po 1 godzinie
-   - Refresh token wygasa po 7 dniach
+    - Access token wygasa po 1 godzinie
+    - Refresh token wygasa po 7 dniach
 2. **Automatyczne odświeżanie**:
-   - Access token jest odświeżany automatycznie 5 minut przed wygaśnięciem
-   - Wygaśnięcie refresh tokenu prowadzi do wylogowania
+    - Access token jest odświeżany automatycznie 5 minut przed wygaśnięciem
+    - Wygaśnięcie refresh tokenu prowadzi do wylogowania
 3. **Zabezpieczenie przed atakami XSS**:
-   - Tokeny są wykorzystywane tylko przez interceptory HTTP
-   - Nie są przechowywane w stanie aplikacji (tylko w localStorage)
+    - Tokeny są wykorzystywane tylko przez interceptory HTTP
 4. **Odporność na CSRF**:
-   - Tokeny są przekazywane w nagłówkach HTTP, nie w cookies
-   - Każde żądanie zmieniające stan wymaga tokenu JWT
+    - Tokeny są przekazywane w nagłówkach HTTP, nie w cookies
+    - Każde żądanie zmieniające stan wymaga tokenu JWT
 
-### 4.5. Obsługa wygaśnięcia sesji
+### 4.3. Wsparcie dla Row Level Security
 
-```typescript
-@Injectable({ providedIn: 'root' })
-export class SessionTimeoutService {
-  constructor(
-    private dialog: MatDialog,
-    private authFacade: AuthFacade
-  ) {}
-  
-  showSessionTimeoutWarning(remainingTime: number): void {
-    const dialogRef = this.dialog.open(SessionTimeoutDialogComponent, {
-      data: { remainingTime },
-      disableClose: true
-    });
-    
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === 'refresh') {
-        this.authFacade.refreshToken();
-      } else {
-        this.authFacade.logout();
-      }
-    });
-  }
-}
-```
+Choć Row Level Security jest implementowane głównie po stronie backendu, frontend zapewnia wsparcie poprzez:
+
+1. **Konsekwentne uwierzytelnianie**:
+    - Każde żądanie do API zawiera token JWT w nagłówku
+    - Token zawiera identyfikator użytkownika używany przez backend do ustalenia kontekstu użytkownika
+2. **Automatyczne uwzględnianie kontekstu użytkownika**:
+    - Wszystkie operacje CRUD na fiszkach są wykonywane w kontekście zalogowanego użytkownika
+    - Użytkownik widzi tylko własne fiszki dzięki filtrowaniu po stronie serwera
 
 ## Podsumowanie
 
-Zaproponowana architektura modułu autoryzacji dla aplikacji 10x Flashcards jest zgodna z wymaganiami określonymi w dokumentacji projektu. Wykorzystuje nowoczesne podejście z komponentami standaloneowymi Angular 19.2, NgRx do zarządzania stanem oraz wzorzec fasady do abstrakcji szczegółów implementacji stanu.
-
-Główne korzyści z tej architektury:
-
-1. **Bezpieczeństwo** - zabezpieczenie przed nieautoryzowanym dostępem z wykorzystaniem guardów i tokenów JWT
-2. **Izolacja kodu** - moduł autoryzacji jest odizolowany od reszty aplikacji dzięki wzorcowi fasady
-3. **Stabilność** - automatyczne odświeżanie tokenów zapewnia nieprzerwane działanie aplikacji
-4. **Ergonomia** - intuicyjne formularze z walidacją w czasie rzeczywistym i komunikatami błędów
-5. **Skalowalność** - architektura pozwala na łatwe rozszerzenie funkcjonalności, np. o reset hasła
-
-Architektura jest w pełni zgodna z założeniami technicznymi projektu i może być bezpośrednio implementowana przez zespół deweloperski.
+Architektura modułu autoryzacji dla 10x Flashcards jest zgodna z wymaganiami określonymi w dokumencie PRD. Wykorzystuje
+komponenty standaloneowe Angular 19.2, NgRx do zarządzania stanem oraz wzorzec fasady do abstrakcji szczegółów
+implementacji stanu. System zapewnia bezpieczny dostęp do aplikacji i wspiera mechanizm Row Level Security
+zaimplementowany na poziomie bazy danych.
