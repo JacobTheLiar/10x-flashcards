@@ -1,0 +1,78 @@
+<div class="register-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Rejestracja</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" placeholder="Wprowadź email" type="email" autocomplete="email">
+          @if (registerForm.get('email')?.invalid && registerForm.get('email')?.touched) {
+            <mat-error>
+              @if (registerForm.get('email')?.hasError('required')) {
+                Email jest wymagany
+              } @else if (registerForm.get('email')?.hasError('email')) {
+                Wprowadź prawidłowy adres email
+              }
+            </mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Hasło</mat-label>
+          <input matInput formControlName="password" placeholder="Wprowadź hasło" type="password"
+                 autocomplete="new-password">
+          @if (registerForm.get('password')?.invalid && registerForm.get('password')?.touched) {
+            <mat-error>
+              @if (registerForm.get('password')?.hasError('required')) {
+                Hasło jest wymagane
+              } @else if (registerForm.get('password')?.hasError('minlength')) {
+                Hasło musi mieć co najmniej 8 znaków
+              }
+            </mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Potwierdź hasło</mat-label>
+          <input matInput formControlName="confirmPassword" placeholder="Potwierdź hasło" type="password"
+                 autocomplete="new-password">
+          @if (registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched) {
+            <mat-error>
+              Potwierdzenie hasła jest wymagane
+            </mat-error>
+          }
+        </mat-form-field>
+
+        @if (registerForm.hasError('passwordMismatch') && registerForm.get('confirmPassword')?.touched) {
+          <div class="error-message">
+            Hasła nie są identyczne
+          </div>
+        }
+
+        <div class="error-message" *ngIf="(error$ | async) as error">
+          {{ error }}
+        </div>
+
+        <div class="button-container">
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            [disabled]="registerForm.invalid || (isLoading$ | async)"
+          >
+            @if ((isLoading$ | async) === true) {
+              <mat-spinner diameter="24"></mat-spinner>
+            } @else {
+              Zarejestruj się
+            }
+          </button>
+          <div class="login-link">
+            Masz już konto? <a routerLink="/login">Zaloguj się</a>
+          </div>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

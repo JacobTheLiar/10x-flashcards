@@ -1,8 +1,27 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
-
+import {ApplicationConfig, importProvidersFrom} from '@angular/core';
+import {provideRouter, withComponentInputBinding} from '@angular/router';
 import { routes } from './app.routes';
+import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
+import {provideStoreDevtools} from '@ngrx/store-devtools';
+import {StoreModule} from '@ngrx/store';
+import {EffectsModule} from '@ngrx/effects';
+import {AuthModule} from './auth/auth.module';
+import {provideAnimations} from '@angular/platform-browser/animations';
+import {environment} from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
-  providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes)]
+  providers: [
+    provideRouter(routes, withComponentInputBinding()),
+    provideHttpClient(withInterceptorsFromDi()),
+    importProvidersFrom(
+      StoreModule.forRoot({}),
+      EffectsModule.forRoot([]),
+      AuthModule
+    ),
+    provideStoreDevtools({
+      maxAge: 25,
+      logOnly: environment.production
+    }),
+    provideAnimations()
+  ]
 };
