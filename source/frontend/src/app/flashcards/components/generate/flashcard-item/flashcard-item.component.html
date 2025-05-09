@@ -1,0 +1,111 @@
+<mat-card class="flashcard-card" [ngClass]="getCardStatusClass()">
+  <div class="flashcard-selection" *ngIf="isSelectable">
+    <mat-checkbox
+      [checked]="isSelected"
+      (change)="onSelectionChange($event.checked)"
+      color="primary"
+      [attr.aria-label]="isSelected ? 'Odznacz fiszkę' : 'Zaznacz fiszkę'"
+    ></mat-checkbox>
+  </div>
+
+  <div class="flashcard-status" [attr.aria-label]="'Status fiszki: ' + getCardStatus()">
+    <span>{{ getCardStatus() }}</span>
+  </div>
+
+  <mat-card-content class="flashcard-content" *ngIf="!editMode">
+    <div class="flashcard-section">
+      <h4>Przód:</h4>
+      <p>{{ flashcard.frontContent }}</p>
+    </div>
+    <div class="flashcard-divider" aria-hidden="true"></div>
+    <div class="flashcard-section">
+      <h4>Tył:</h4>
+      <p>{{ flashcard.backContent }}</p>
+    </div>
+  </mat-card-content>
+
+  <mat-card-content class="flashcard-content" *ngIf="editMode">
+    <div class="flashcard-section">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Przód</mat-label>
+        <textarea
+          matInput
+          [(ngModel)]="editFrontContent"
+          rows="2"
+          required
+          aria-required="true"
+          placeholder="Wprowadź treść przedniej strony fiszki"
+        ></textarea>
+        <mat-error *ngIf="!editFrontContent.trim()">Treść jest wymagana</mat-error>
+      </mat-form-field>
+    </div>
+    <div class="flashcard-divider" aria-hidden="true"></div>
+    <div class="flashcard-section">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Tył</mat-label>
+        <textarea
+          matInput
+          [(ngModel)]="editBackContent"
+          rows="2"
+          required
+          aria-required="true"
+          placeholder="Wprowadź treść tylnej strony fiszki"
+        ></textarea>
+        <mat-error *ngIf="!editBackContent.trim()">Treść jest wymagana</mat-error>
+      </mat-form-field>
+    </div>
+  </mat-card-content>
+
+  <mat-card-actions class="flashcard-actions" *ngIf="!editMode">
+    <button
+      mat-button
+      color="primary"
+      (click)="acceptFlashcard()"
+      *ngIf="flashcard.status !== 'accepted'"
+      aria-label="Akceptuj fiszkę"
+    >
+      <mat-icon aria-hidden="true">check</mat-icon>
+      Akceptuj
+    </button>
+    <button
+      mat-button
+      color="accent"
+      (click)="startEditing()"
+      aria-label="Edytuj fiszkę"
+    >
+      <mat-icon aria-hidden="true">edit</mat-icon>
+      Edytuj
+    </button>
+    <button
+      mat-button
+      color="warn"
+      (click)="rejectFlashcard()"
+      *ngIf="flashcard.status !== 'rejected'"
+      aria-label="Odrzuć fiszkę"
+    >
+      <mat-icon aria-hidden="true">close</mat-icon>
+      Odrzuć
+    </button>
+  </mat-card-actions>
+
+  <mat-card-actions class="flashcard-actions" *ngIf="editMode">
+    <button
+      mat-button
+      color="primary"
+      (click)="saveEdit()"
+      [disabled]="!editFrontContent.trim() || !editBackContent.trim()"
+      aria-label="Zapisz edytowaną fiszkę"
+    >
+      <mat-icon aria-hidden="true">save</mat-icon>
+      Zapisz
+    </button>
+    <button
+      mat-button
+      (click)="cancelEditing()"
+      aria-label="Anuluj edycję"
+    >
+      <mat-icon aria-hidden="true">cancel</mat-icon>
+      Anuluj
+    </button>
+  </mat-card-actions>
+</mat-card>

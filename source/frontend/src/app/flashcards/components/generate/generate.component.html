@@ -1,0 +1,59 @@
+<div class="generate-container">
+  <h2 class="section-title">Generator fiszek</h2>
+
+  <!-- Komunikat o błędzie -->
+  <div class="error-message" *ngIf="generateState.currentState.error">
+    {{ generateState.currentState.error }}
+  </div>
+
+  <!-- Sekcja wprowadzania tekstu -->
+  <section class="text-input-section">
+    <app-text-input
+      [value]="generateState.currentState.sourceText"
+      [disabled]="generateState.currentState.isGenerating"
+      (textChange)="onTextChange($event)"
+    ></app-text-input>
+  </section>
+
+  <!-- Sekcja przycisków akcji -->
+  <section class="action-panel-section">
+    <app-action-panel
+      [isGenerating]="generateState.currentState.isGenerating"
+      [hasText]="hasText"
+      [hasSuggestions]="generateState.currentState.flashcards.length > 0"
+      [selectionMode]="generateState.currentState.selectionMode"
+      [hasSelectedFlashcards]="hasSelectedFlashcards"
+      (onGenerate)="onGenerate()"
+      (onClear)="onClear()"
+      (onSaveAll)="onSaveAll()"
+      (onSaveSelected)="onSaveSelected()"
+      (onRejectAll)="onRejectAll()"
+      (onToggleSelectionMode)="onToggleSelectionMode()"
+      (onNavigateToList)="onNavigateToList()"
+      (onNavigateToReview)="onNavigateToReview()"
+    ></app-action-panel>
+  </section>
+
+  <!-- Sekcja wyświetlania fiszek -->
+  <section class="flashcards-section">
+    <app-flashcard-grid
+      [flashcards]="generateState.currentState.flashcards"
+      [loading]="generateState.currentState.isGenerating"
+      [selectionMode]="generateState.currentState.selectionMode"
+      (onAccept)="onAcceptFlashcard($event)"
+      (onReject)="onRejectFlashcard($event)"
+      (onEdit)="onEditFlashcard($event)"
+      (onSelect)="onSelectFlashcard($event)"
+      (onSelectAll)="onSelectAll()"
+      (onDeselectAll)="onDeselectAll()"
+    ></app-flashcard-grid>
+  </section>
+
+  <!-- Overlay podczas zapisywania -->
+  <div class="saving-overlay" *ngIf="generateState.currentState.isSaving">
+    <div class="saving-content">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Zapisywanie fiszek...</p>
+    </div>
+  </div>
+</div>

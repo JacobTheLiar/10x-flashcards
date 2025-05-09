@@ -1,0 +1,93 @@
+<div class="action-panel">
+    <div class="action-group">
+        <button
+                mat-raised-button
+                color="primary"
+                [disabled]="!hasText || isGenerating"
+                (click)="generate()"
+                matTooltip="Wygeneruj fiszki z wprowadzonego tekstu"
+        >
+            <mat-icon>auto_awesome</mat-icon>
+            Generuj
+        </button>
+
+        <button
+                mat-button
+                [disabled]="!hasText || isGenerating"
+                (click)="clear()"
+                matTooltip="Wyczyść wprowadzony tekst i wygenerowane fiszki"
+        >
+            <mat-icon>clear</mat-icon>
+            Wyczyść
+        </button>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <div class="action-group">
+        <button
+                mat-raised-button
+                color="accent"
+                [disabled]="!hasSuggestions || isGenerating || selectionMode"
+                (click)="saveAll()"
+                matTooltip="Zapisz wszystkie fiszki do kolekcji"
+        >
+            <mat-icon>save</mat-icon>
+            Akceptuj wszystkie
+        </button>
+
+        <button
+                mat-button
+                [disabled]="!hasSuggestions || isGenerating || selectionMode"
+                (click)="rejectAll()"
+                matTooltip="Odrzuć wszystkie wygenerowane fiszki"
+        >
+            <mat-icon>delete</mat-icon>
+            Odrzuć wszystkie
+        </button>
+
+        <button
+                mat-button
+                [color]="selectionMode ? 'accent' : ''"
+                [disabled]="!hasSuggestions || isGenerating"
+                (click)="toggleSelectionMode()"
+                matTooltip="Włącz/wyłącz tryb wyboru fiszek"
+        >
+            <mat-icon>checklist</mat-icon>
+            {{ selectionMode ? 'Zakończ wybór' : 'Zaznacz fiszki' }}
+        </button>
+
+        <button
+                mat-button
+                color="primary"
+                [disabled]="!hasSelectedFlashcards || !selectionMode || isGenerating"
+                (click)="saveSelected()"
+                matTooltip="Zapisz tylko zaznaczone fiszki"
+        >
+            <mat-icon>playlist_add_check</mat-icon>
+            Akceptuj zaznaczone
+        </button>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <div class="action-group">
+        <button
+                mat-button
+                (click)="navigateToList()"
+                matTooltip="Przejdź do listy wszystkich fiszek"
+        >
+            <mat-icon>view_list</mat-icon>
+            Lista fiszek
+        </button>
+
+        <button
+                mat-button
+                (click)="navigateToReview()"
+                matTooltip="Przejdź do sesji powtórkowej"
+        >
+            <mat-icon>school</mat-icon>
+            Sesja powtórkowa
+        </button>
+    </div>
+</div>

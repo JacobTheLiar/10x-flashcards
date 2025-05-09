@@ -1,0 +1,65 @@
+.flashcard-grid-container {
+  width: 100%;
+  padding: 16px 0;
+}
+
+.loading-container, .empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  text-align: center;
+
+  p {
+    margin-top: 16px;
+    color: #666;
+  }
+}
+
+.selection-controls {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 0 16px;
+}
+
+.selection-count {
+  margin-left: 16px;
+  padding: 4px 8px;
+  background-color: #e3f2fd;
+  border-radius: 16px;
+  color: #1565c0;
+  font-size: 14px;
+}
+
+.grid-layout {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  padding: 0 16px;
+}
+
+@media (max-width: 599px) {
+  .grid-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 600px) and (max-width: 959px) {
+  .grid-layout {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 960px) and (max-width: 1279px) {
+  .grid-layout {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .grid-layout {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

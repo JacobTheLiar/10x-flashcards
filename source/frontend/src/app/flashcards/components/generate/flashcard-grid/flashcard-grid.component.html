@@ -1,0 +1,41 @@
+<div class="flashcard-grid-container">
+  <!-- Spinner ładowania -->
+  <div class="loading-container" *ngIf="loading" role="status" aria-label="Trwa generowanie fiszek">
+    <mat-spinner diameter="40" aria-hidden="true"></mat-spinner>
+    <p>Generowanie fiszek...</p>
+  </div>
+
+  <!-- Komunikat o braku fiszek -->
+  <div class="empty-container" *ngIf="!loading && flashcards.length === 0">
+    <p>Brak wygenerowanych fiszek. Wprowadź tekst i kliknij "Generuj".</p>
+  </div>
+
+  <!-- Opcje zaznaczania -->
+  <div class="selection-controls" *ngIf="selectionMode && flashcards.length > 0">
+    <mat-checkbox
+      [checked]="allSelected"
+      (change)="toggleSelectAll($event.checked)"
+      color="primary"
+      aria-label="Zaznacz lub odznacz wszystkie fiszki"
+    >
+      Zaznacz wszystkie
+    </mat-checkbox>
+    <span class="selection-count" *ngIf="selectedFlashcards.length > 0">
+      Wybrano: {{ selectedFlashcards.length }}
+    </span>
+  </div>
+
+  <!-- Siatka fiszek -->
+  <div class="grid-layout" *ngIf="flashcards.length > 0">
+    <app-flashcard-item
+      *ngFor="let flashcard of flashcards; let i = index; trackBy: trackByFlashcard"
+      [flashcard]="flashcard"
+      [isSelectable]="selectionMode"
+      [isSelected]="isSelected(flashcard)"
+      (onAccept)="acceptFlashcard($event)"
+      (onReject)="rejectFlashcard($event)"
+      (onEdit)="editFlashcard($event)"
+      (onSelect)="selectFlashcard(flashcard, $event)"
+    ></app-flashcard-item>
+  </div>
+</div>

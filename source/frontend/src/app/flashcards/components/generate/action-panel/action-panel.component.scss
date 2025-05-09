@@ -1,0 +1,32 @@
+.action-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  padding: 16px 0;
+}
+
+.action-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 0;
+}
+
+mat-divider {
+  width: 100%;
+}
+
+button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 599px) {
+  button {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
