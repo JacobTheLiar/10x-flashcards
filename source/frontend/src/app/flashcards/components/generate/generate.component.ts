@@ -143,29 +143,50 @@ export class GenerateComponent implements OnInit {
     this.generateState.updateState({flashcards: updatedFlashcards});
   }
 
-  // Integracja z API
-
   private generateFlashcards(sourceText: string): void {
     this.generateState.updateState({isGenerating: true, error: null});
+    console.log('Wysyłam zapytanie do API z tekstem:', sourceText);
 
     this.generationControllerService.generateFlashcards({
       body: {sourceText}
     }).pipe(
       finalize(() => this.generateState.updateState({isGenerating: false})),
       catchError(error => {
+        console.error('Błąd podczas generowania fiszek:', error);
         this.generateState.updateState({error: 'Nie udało się wygenerować fiszek.'});
         return this.errorHandler.handleError(error, 'Wystąpił błąd podczas generowania fiszek');
       })
     ).subscribe({
       next: (response) => {
-        // Sprawdzenie czy response i suggestedFlashcards istnieją
-        if (!response || !response.suggestedFlashcards || response.suggestedFlashcards.length === 0) {
+        console.log('Otrzymana odpowiedź z API:', response);
+        console.log('Typ odpowiedzi:', typeof response);
+        console.log('Czy response jest nullem/undefined:', response === null || response === undefined);
+        console.log('Czy response ma właściwość suggestedFlashcards:', response && 'suggestedFlashcards' in response);
+        if (response && 'suggestedFlashcards' in response) {
+          console.log('Czy suggestedFlashcards jest tablicą:', Array.isArray(response.suggestedFlashcards));
+          console.log('Długość suggestedFlashcards:', response.suggestedFlashcards?.length);
+        }
+
+        if (!response) {
+          console.error('Pusta odpowiedź z API');
           this.generateState.updateState({error: 'Otrzymano pustą odpowiedź z serwera.'});
           this.errorHandler.showError('Nie udało się wygenerować fiszek. Spróbuj ponownie.');
           return;
         }
 
-        const flashcards = response.suggestedFlashcards.map(card => ({
+        const suggestedFlashcards = response.suggestedFlashcards || [];
+        const generationId = response.generationId || '';
+
+        if (!suggestedFlashcards.length) {
+          console.warn('Brak sugerowanych fiszek w odpowiedzi');
+          this.generateState.updateState({error: 'Nie znaleziono sugestii fiszek w odpowiedzi.'});
+          this.errorHandler.showError('Nie znaleziono żadnych propozycji fiszek. Spróbuj z innym tekstem.');
+          return;
+        }
+
+        console.log('Fiszki do wygenerowania:', suggestedFlashcards);
+
+        const flashcards = suggestedFlashcards.map(card => ({
           frontContent: card.frontContent || '',
           backContent: card.backContent || '',
           status: 'pending' as const,
@@ -174,7 +195,7 @@ export class GenerateComponent implements OnInit {
 
         this.generateState.updateState({
           flashcards,
-          generationId: response.generationId || ''
+          generationId
         });
 
         this.errorHandler.showSuccess('Wygenerowano propozycje fiszek');
