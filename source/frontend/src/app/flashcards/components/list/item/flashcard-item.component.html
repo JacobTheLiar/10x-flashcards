@@ -1,0 +1,20 @@
+<mat-card class="flashcard-card">
+  <mat-card-content>
+    <app-flashcard-content
+      [flashcard]="flashcard"
+      [isEditing]="isEditing"
+      [form]="editForm">
+    </app-flashcard-content>
+  </mat-card-content>
+
+  <mat-card-actions align="end">
+    <app-flashcard-actions
+      [isEditing]="isEditing"
+      [canSave]="editForm.valid"
+      (edit)="onEditClick()"
+      (save)="onSaveClick()"
+      (delete)="onDeleteClick()"
+      (cancel)="onCancelClick()">
+    </app-flashcard-actions>
+  </mat-card-actions>
+</mat-card>

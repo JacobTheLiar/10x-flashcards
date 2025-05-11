@@ -9,6 +9,8 @@ import {AuthModule} from './auth/auth.module';
 import {provideAnimations} from '@angular/platform-browser/animations';
 import {environment} from '../environments/environment';
 import {ApiConfiguration} from "@api/api-configuration";
+import {flashcardsFeature} from "./flashcards/store/flashcards.reducer";
+import {FlashcardsEffects} from "./flashcards/store/flashcards.effects";
 
 export function apiConfigFactory(config: ApiConfiguration): Function {
   return () => {
@@ -24,7 +26,9 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptorsFromDi(), withFetch()),
     importProvidersFrom(
       StoreModule.forRoot({}),
+      StoreModule.forFeature(flashcardsFeature),
       EffectsModule.forRoot([]),
+      EffectsModule.forFeature([FlashcardsEffects]),
       AuthModule,
     ),
     provideStoreDevtools({

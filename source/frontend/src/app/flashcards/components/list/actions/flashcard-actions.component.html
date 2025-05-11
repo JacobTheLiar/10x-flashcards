@@ -1,0 +1,38 @@
+<div class="actions-container">
+    @if (!isEditing) {
+        <button
+                mat-icon-button
+                color="primary"
+                (click)="edit.emit()"
+                matTooltip="Edytuj fiszkę"
+                aria-label="Edytuj">
+            <mat-icon>edit</mat-icon>
+        </button>
+        <button
+                mat-icon-button
+                color="warn"
+                (click)="delete.emit()"
+                matTooltip="Usuń fiszkę"
+                aria-label="Usuń">
+            <mat-icon>delete</mat-icon>
+        </button>
+    } @else {
+        <button
+                mat-icon-button
+                color="accent"
+                (click)="cancel.emit()"
+                matTooltip="Anuluj edycję"
+                aria-label="Anuluj">
+            <mat-icon>close</mat-icon>
+        </button>
+        <button
+                mat-icon-button
+                color="primary"
+                (click)="save.emit()"
+                [disabled]="!canSave"
+                matTooltip="Zapisz zmiany"
+                aria-label="Zapisz">
+            <mat-icon>save</mat-icon>
+        </button>
+    }
+</div>

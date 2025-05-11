@@ -1,0 +1,27 @@
+<div class="flashcards-list-container">
+    <app-flashcards-list-header (navigateToGenerate)="navigateToGenerate()"></app-flashcards-list-header>
+
+    @if (facade.loading()) {
+        <div class="loading-container">
+            <mat-spinner diameter="50"></mat-spinner>
+        </div>
+    } @else if (facade.error()) {
+        <app-error-state
+                [error]="facade.error()!"
+                (retry)="loadFlashcards()">
+        </app-error-state>
+    } @else if (facade.flashcards().length === 0) {
+        <app-empty-state
+                title="Brak fiszek"
+                message="Nie masz jeszcze żadnych zapisanych fiszek. Wróć do widoku generowania, aby stworzyć nowe."
+                buttonText="Wygeneruj fiszki"
+                (buttonClick)="navigateToGenerate()">
+        </app-empty-state>
+    } @else {
+        <app-flashcards-grid
+                [flashcards]="facade.flashcards()"
+                (editFlashcard)="toggleEditFlashcard($event)"
+                (deleteFlashcard)="deleteFlashcard($event)">
+        </app-flashcards-grid>
+    }
+</div>

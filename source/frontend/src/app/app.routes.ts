@@ -1,29 +1,32 @@
 import { Routes } from '@angular/router';
-import {isAuthenticatedGuard, unauthorizedGuard} from './auth/guards/auth.guard';
-import {LoginComponent} from './auth/components/login/login.component';
-import {RegisterComponent} from './auth/components/register/register.component';
+import {isAuthenticatedGuard} from './auth/guards/auth.guard';
 
 export const routes: Routes = [
-  {path: 'login', component: LoginComponent, canMatch: [unauthorizedGuard]},
-  {path: 'register', component: RegisterComponent, canMatch: [unauthorizedGuard]},
+  {
+    path: 'login',
+    loadComponent: () => import('./auth/components/login/login.component').then(m => m.LoginComponent),
+  },
+  {
+    path: 'register',
+    loadComponent: () => import('./auth/components/register/register.component').then(m => m.RegisterComponent),
+  },
+  {
+    path: 'generate',
+    loadComponent: () => import('./flashcards/components/generate/generate.component').then(m => m.GenerateComponent),
+    canActivate: [isAuthenticatedGuard],
+  },
+  {
+    path: 'flashcards',
+    loadComponent: () => import('./flashcards/components/list/flashcards-list.component').then(m => m.FlashcardsListComponent),
+    canActivate: [isAuthenticatedGuard],
+  },
   {
     path: '',
-    canMatch: [isAuthenticatedGuard],
-    children: [
-      {
-        path: 'generate',
-        loadComponent: () => import('./flashcards/components/generate/generate.component').then(c => c.GenerateComponent)
-      },
-      {
-        path: 'flashcards',
-        loadComponent: () => import('./flashcards/components/list/flashcards-list.component').then(c => c.FlashcardsListComponent)
-      },
-      {
-        path: 'review',
-        loadComponent: () => import('./flashcards/components/review/review-session.component').then(c => c.ReviewSessionComponent)
-      },
-      {path: '', redirectTo: 'generate', pathMatch: 'full'}
-    ]
+    redirectTo: 'generate',
+    pathMatch: 'full',
   },
-  {path: '**', redirectTo: 'login'}
+  {
+    path: '**',
+    redirectTo: 'generate',
+  }
 ];

@@ -1,0 +1,16 @@
+<div class="grid-container">
+    <mat-grid-list [cols]="columns" rowHeight="1:0.8" gutterSize="16px">
+        @for (flashcard of flashcards; track flashcard.id) {
+            <mat-grid-tile>
+                <app-flashcard-item
+                        [flashcard]="flashcard"
+                        [isEditing]="facade.isFlashcardEditing(flashcard.id!)()!"
+                        (edit)="onEdit(flashcard)"
+                        (save)="onSave(flashcard.id!, $event)"
+                        (delete)="onDelete(flashcard.id!)"
+                        (cancel)="onCancel(flashcard.id!)">
+                </app-flashcard-item>
+            </mat-grid-tile>
+        }
+    </mat-grid-list>
+</div>

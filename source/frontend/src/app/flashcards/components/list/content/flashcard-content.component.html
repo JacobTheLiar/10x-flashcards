@@ -1,0 +1,50 @@
+@if (form && isEditing) {
+    <form [formGroup]="form" class="flashcard-edit-form">
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Przód</mat-label>
+            <textarea
+                    matInput
+                    formControlName="frontContent"
+                    placeholder="Treść przodu fiszki"
+                    rows="3">
+      </textarea>
+            @if (form.get('frontContent')?.hasError('required') && form.get('frontContent')?.touched) {
+                <mat-error>Treść przodu jest wymagana</mat-error>
+            }
+            @if (form.get('frontContent')?.hasError('maxlength')) {
+                <mat-error>Maksymalna długość to 500 znaków</mat-error>
+            }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Tył</mat-label>
+            <textarea
+                    matInput
+                    formControlName="backContent"
+                    placeholder="Treść tyłu fiszki"
+                    rows="2">
+      </textarea>
+            @if (form.get('backContent')?.hasError('required') && form.get('backContent')?.touched) {
+                <mat-error>Treść tyłu jest wymagana</mat-error>
+            }
+            @if (form.get('backContent')?.hasError('maxlength')) {
+                <mat-error>Maksymalna długość to 200 znaków</mat-error>
+            }
+        </mat-form-field>
+    </form>
+} @else if (flashcard) {
+    <div class="flashcard-content">
+        <div class="flashcard-side">
+            <h3>Przód</h3>
+            <p>{{ flashcard.frontContent }}</p>
+        </div>
+        <div class="flashcard-side">
+            <h3>Tył</h3>
+            <p>{{ flashcard.backContent }}</p>
+        </div>
+    </div>
+    <div class="flashcard-metadata">
+        <span class="source-type">{{ getFormattedSourceType(flashcard.sourceType) }}</span>
+        <span class="date">Ostatnia zmiana: {{ formatDate(flashcard.lastModifiedAt) }}</span>
+    </div>
+}
