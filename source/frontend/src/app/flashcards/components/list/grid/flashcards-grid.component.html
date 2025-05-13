@@ -4,7 +4,7 @@
             <mat-grid-tile>
                 <app-flashcard-item
                         [flashcard]="flashcard"
-                        [isEditing]="facade.isFlashcardEditing(flashcard.id!)()!"
+                        [isEditing]="!!facade.isFlashcardEditing(flashcard.id!)"
                         (edit)="onEdit(flashcard)"
                         (save)="onSave(flashcard.id!, $event)"
                         (delete)="onDelete(flashcard.id!)"

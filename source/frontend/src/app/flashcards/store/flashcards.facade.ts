@@ -5,6 +5,8 @@ import * as FlashcardsActions from './flashcards.actions';
 import * as FlashcardsSelectors from './flashcards.selectors';
 import {UpdateFlashcardRequest} from '@api/models/update-flashcard-request';
 import {FlashcardApiModel} from '@api/models/flashcard-api-model';
+import {computed, signal} from '@angular/core';
+import {FlashcardEditState} from './flashcards.reducer';
 
 @Injectable({providedIn: 'root'})
 export class FlashcardsFacade {
@@ -15,17 +17,20 @@ export class FlashcardsFacade {
   readonly loading = toSignal(this.store.select(FlashcardsSelectors.selectFlashcardsLoading), {initialValue: false});
   readonly error = toSignal(this.store.select(FlashcardsSelectors.selectFlashcardsError), {initialValue: null});
 
-  // Metoda do sprawdzenia czy fiszka jest w trybie edycji
+  // Sygnał dla wszystkich stanów edycji
+  private readonly editingStates = toSignal(
+    this.store.select(FlashcardsSelectors.selectAllEditingStates),
+    {initialValue: {} as Record<string, FlashcardEditState>}
+  );
+
   isFlashcardEditing(id: string) {
-    return toSignal(this.store.select(FlashcardsSelectors.selectIsFlashcardEditing(id)), {initialValue: false});
+    return computed(() => (this.editingStates() ?? {})[id]?.isEditing || false);
   }
 
-  // Metoda do pobrania pojedynczej fiszki po ID
   getFlashcardById(id: string) {
     return toSignal(this.store.select(FlashcardsSelectors.selectFlashcardById(id)), {initialValue: null});
   }
 
-  // Akcje
   loadFlashcards(): void {
     this.store.dispatch(FlashcardsActions.loadFlashcards());
   }

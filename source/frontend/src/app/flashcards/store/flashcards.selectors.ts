@@ -19,7 +19,11 @@ export const selectFlashcardById = (id: string) => createSelector(
   (entities) => entities[id]
 );
 
-// Selektor, czy fiszka jest w trybie edycji
+export const selectAllEditingStates = createSelector(
+  flashcardsFeature.selectEditingStates,
+  (editingStates) => editingStates
+);
+
 export const selectIsFlashcardEditing = (id: string) => createSelector(
   flashcardsFeature.selectEditingStates,
   (editingStates) => editingStates[id]?.isEditing || false
