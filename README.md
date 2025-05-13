@@ -117,6 +117,7 @@ time-consuming and labor-intensive.
 ```bash
 cd source/frontend
 pnpm install
+pnpm update-api
 pnpm start
 ```
 
@@ -178,4 +179,4 @@ Document.
 
 ---
 
-*Note: This project is developed as part of the 10x_Devs initiative.*
+*Note: This project is developed as part of the [10x_Devs](https://www.10xdevs.pl/) initiative.*
