@@ -1,7 +1,7 @@
 import {APP_INITIALIZER, ApplicationConfig, importProvidersFrom} from '@angular/core';
 import {provideRouter, withComponentInputBinding} from '@angular/router';
 import { routes } from './app.routes';
-import {provideHttpClient, withInterceptorsFromDi, withFetch} from '@angular/common/http';
+import {provideHttpClient, withInterceptorsFromDi} from '@angular/common/http';
 import {provideStoreDevtools} from '@ngrx/store-devtools';
 import {StoreModule} from '@ngrx/store';
 import {EffectsModule} from '@ngrx/effects';
@@ -14,7 +14,7 @@ import {FlashcardsEffects} from "./flashcards/store/flashcards.effects";
 
 export function apiConfigFactory(config: ApiConfiguration): Function {
   return () => {
-    config.rootUrl = '';
+    config.rootUrl = environment.apiUrl;
     console.log('apiConfigFactory: setting rootUrl to empty string');
     return config;
   };
@@ -23,7 +23,7 @@ export function apiConfigFactory(config: ApiConfiguration): Function {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes, withComponentInputBinding()),
-    provideHttpClient(withInterceptorsFromDi(), withFetch()),
+    provideHttpClient(withInterceptorsFromDi()),
     importProvidersFrom(
       StoreModule.forRoot({}),
       StoreModule.forFeature(flashcardsFeature),

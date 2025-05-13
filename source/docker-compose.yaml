@@ -45,6 +45,23 @@ services:
     networks:
       - flashcards-network
 
+  # Usługa frontendu Angular
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: flashcards-frontend
+    restart: unless-stopped
+    ports:
+      # Port 80 wewnątrz kontenera jest mapowany na port FRONTEND_PORT (domyślnie 4200) na hoście
+      - "${FRONTEND_PORT:-4200}:80"
+    depends_on:
+      - backend
+    networks:
+      - flashcards-network
+#    environment:
+#      - BACKEND_URL=http://backend:8080
+
   # Usługa Ollama
   ollama:
     build:
