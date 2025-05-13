@@ -2,6 +2,7 @@ package pl.jit.flashcards.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -18,7 +19,7 @@ public class ReviewSessionController {
 
     private final ReviewSessionService reviewSessionService;
 
-    @PostMapping
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public StartReviewSessionResponse startReviewSession() {
         log.info("Received request to start a new review session.");

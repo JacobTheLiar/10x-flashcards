@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.jit.flashcards.data.api_model.FlashcardApiModel;
@@ -23,26 +24,26 @@ public class FlashcardController {
 
     private final FlashcardService flashcardService;
 
-    @PostMapping
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public SaveFlashcardsResponse saveFlashcards(@Valid @RequestBody SaveFlashcardsRequest request) {
         log.info("Received request to save {} flashcards for generationId: {}", request.flashcards().size(), request.generationId());
         return flashcardService.saveFlashcards(request);
     }
 
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public GetAllFlashcardsResponse getAllUserFlashcards() {
         log.info("Received request to get all flashcards for the user.");
         return flashcardService.getAllFlashcards();
     }
 
-    @PutMapping("/{flashcardId}")
+    @PutMapping(value = "/{flashcardId}", produces = MediaType.APPLICATION_JSON_VALUE)
     public FlashcardApiModel updateFlashcard(@PathVariable UUID flashcardId, @Valid @RequestBody UpdateFlashcardRequest request) {
         log.info("Received request to update flashcard with id: {}", flashcardId);
         return flashcardService.updateFlashcard(flashcardId, request);
     }
 
-    @DeleteMapping("/{flashcardId}")
+    @DeleteMapping(value = "/{flashcardId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deleteFlashcard(@PathVariable UUID flashcardId) {
         log.info("Received request to delete flashcard with id: {}", flashcardId);
