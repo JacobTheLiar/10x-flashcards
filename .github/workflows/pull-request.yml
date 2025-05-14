@@ -15,11 +15,6 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: admin_password
           POSTGRES_DB: flashcards
-        options: >-
-          --health-cmd pg_isready -U postgres -d flashcards
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
