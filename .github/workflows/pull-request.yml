@@ -4,21 +4,25 @@ on:
   pull_request:
     branches: [ develop ]
 
+permissions:
+  contents: read
+  pull-requests: write  # To pozwala na dodawanie komentarzy do PR
+
 jobs:
   test-backend:
     name: Test Backend
     runs-on: ubuntu-latest
     services:
-      db:
+      postgres:  # Zmieniona nazwa serwisu
         image: postgres:17.4-alpine
         env:
-          POSTGRES_USER: ${{ secrets.SUPER_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.SUPER_PASSWORD }}
-          POSTGRES_DB: ${{ secrets.DB_NAME }}
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: admin_password
+          POSTGRES_DB: flashcards
         ports:
-          - 5432:5432
+          - 5432:5432  # Eksponowanie portu na host
         options: >-
-          --health-cmd pg_isready -U ${{ secrets.SUPER_USER }} -d ${{ secrets.DB_NAME }}
+          --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -41,65 +45,88 @@ jobs:
             ${{ runner.os }}-m2-
 
       - name: Run backend tests
-        run: mvn -B test
+        run: |
+          cd source/backend
+          mvn -B test
         env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/${{ secrets.DB_NAME }}
-          SPRING_DATASOURCE_USERNAME: ${{ secrets.DB_USER }}
-          SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
           SPRING_PROFILES_ACTIVE: test
-          SUPER_USER: ${{ secrets.SUPER_USER }}
-          SUPER_PASSWORD: ${{ secrets.SUPER_PASSWORD }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_USER: ${{ secrets.DB_USER }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          JWT_EXPIRATION_MS: ${{ secrets.JWT_EXPIRATION_MS }}
+          DB_PASSWORD: admin_password
+          DB_USER: postgres
+          DB_NAME: flashcards
+          SUPER_USER: postgres
+          SUPER_PASSWORD: admin_password
+          DB_HOST: localhost  # Zmiana z "db" na "localhost"
+          POSTGRES_USER: postgres  # Dodane dla zgodności z application.yaml
+          POSTGRES_PASSWORD: admin_password  # Dodane dla zgodności z application.yaml
+          JWT_SECRET: 80cc9be8acdaa60e8d44518c3982b4ad2bb801842c7f26a9b64ea5dc1425c89b26b76e54d5afdbc9675f8e1ec1cc0c31c0330abcfd3e2b7c183ea0fca57f0f6f148f5f3a56748a19363d7ac8d8ee4db5c193f0dac74b7ff2bb0bad8ccc9edf883112f091e850408bd3368ac73d4c905fc2a934657db67bc80347163f8ec59955d7b25509ef76d3eeef599d78aa8092c8b52c00c7857742b68963ea7374b3f6a2edbb962e9a461d9e62110a998e1362fc613ca80c28c5c8a61ac0555623af1fb027515806bee434f65ca098894e0ae96514190a048afc57799c52c23cd7bba5f0390e67c897906b07085ce153c647ef0392752f94e386aa7bd6967e159d75e7bf3060e54d901e36a8c61f2258c8ea38b450b227a1f70ce461c50100a3f5f669d759ea8a3b5cbecdb3d152aa228b9049f6cd756cb090bcd87d635f8ae82e85223f5a2e6adf488ccf2012672edf451421a09b412c6ef39c474c8889e92956096879cef007faf7460d5796f3f7d84d3f4d7441934d5cf3731824049197d4cb993ebd54720d98eb30b88f642244ef413252c395020449aedb49f32c92aaf8ec8fd5408f3445e50bddaf29049496b252b5d79713b75be5e33376094b98f83b7ca64be9b7778bb71c150a23ee34175b1f5fb11a8030351ddd3aa012333ea309ffd4b7126f3fadfd4de474db9f5f93a0d2a49d8e4984e925dc8cab152fed519df8815661
+          JWT_EXPIRATION_MS: 9000000
+
 
   build-docker-backend:
     name: Build Backend Docker Image
     runs-on: ubuntu-latest
-    needs: test-backend # Zależność od pomyślnych testów backendu
+    needs: test-backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Docker Compose
+        uses: KengoTODA/actions-setup-docker-compose@v1
+        with:
+          version: '2.21.0'
+
+      - name: Create .env file
+        run: |
+          cd source
+          echo "BACKEND_PORT=8080" > .env
+          echo "FRONTEND_PORT=4200" >> .env
+          echo "EXPOSE_DB_PORT=5432:5432" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "SUPER_USER=${{ secrets.SUPER_USER }}" >> .env
+          echo "SUPER_PASSWORD=${{ secrets.SUPER_PASSWORD }}" >> .env
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "JWT_EXPIRATION_MS=${{ secrets.JWT_EXPIRATION_MS }}" >> .env
+          echo "SPRING_PROFILES_ACTIVE=test" >> .env
+
       - name: Build backend image
-        run: docker-compose build backend
-        env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/${{ secrets.DB_NAME }}
-          SPRING_DATASOURCE_USERNAME: ${{ secrets.DB_USER }}
-          SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          SPRING_PROFILES_ACTIVE: test
-          SUPER_USER: ${{ secrets.SUPER_USER }}
-          SUPER_PASSWORD: ${{ secrets.SUPER_PASSWORD }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_USER: ${{ secrets.DB_USER }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          JWT_EXPIRATION_MS: ${{ secrets.JWT_EXPIRATION_MS }}
+        run: cd source && docker-compose build backend
+
 
   build-docker-frontend:
     name: Build Frontend Docker Image
     runs-on: ubuntu-latest
-    needs: test-backend # Zależność od pomyślnych testów backendu
+    needs: test-backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Docker Compose
+        uses: KengoTODA/actions-setup-docker-compose@v1
+        with:
+          version: '2.21.0'
+
+      - name: Create .env file
+        run: |
+          cd source
+          echo "BACKEND_PORT=8080" > .env
+          echo "FRONTEND_PORT=4200" >> .env
+          echo "EXPOSE_DB_PORT=5432:5432" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "SUPER_USER=${{ secrets.SUPER_USER }}" >> .env
+          echo "SUPER_PASSWORD=${{ secrets.SUPER_PASSWORD }}" >> .env
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "JWT_EXPIRATION_MS=${{ secrets.JWT_EXPIRATION_MS }}" >> .env
+          echo "SPRING_PROFILES_ACTIVE=test" >> .env
+
       - name: Build frontend image
-        run: docker-compose build frontend
-        env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/${{ secrets.DB_NAME }}
-          SPRING_DATASOURCE_USERNAME: ${{ secrets.DB_USER }}
-          SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          SPRING_PROFILES_ACTIVE: test
-          SUPER_USER: ${{ secrets.SUPER_USER }}
-          SUPER_PASSWORD: ${{ secrets.SUPER_PASSWORD }}
-          DB_NAME: ${{ secrets.DB_NAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_USER: ${{ secrets.DB_USER }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          JWT_EXPIRATION_MS: ${{ secrets.JWT_EXPIRATION_MS }}
+        run: cd source && docker-compose build frontend
+
 
   status-comment:
     name: Post Status Comment
@@ -123,3 +150,5 @@ jobs:
               issue_number: prNumber,
               body: '✅ Backend tests passed and Docker images built successfully!'
             });
+
+
