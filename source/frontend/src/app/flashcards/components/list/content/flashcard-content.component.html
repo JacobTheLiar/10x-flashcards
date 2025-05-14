@@ -38,13 +38,10 @@
             <h3>Przód</h3>
             <p>{{ flashcard.frontContent }}</p>
         </div>
+        <div class="flashcard-divider"></div>
         <div class="flashcard-side">
             <h3>Tył</h3>
             <p>{{ flashcard.backContent }}</p>
         </div>
-    </div>
-    <div class="flashcard-metadata">
-        <span class="source-type">{{ getFormattedSourceType(flashcard.sourceType) }}</span>
-        <span class="date">Ostatnia zmiana: {{ formatDate(flashcard.lastModifiedAt) }}</span>
     </div>
 }

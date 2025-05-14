@@ -1,25 +1,45 @@
 .flashcard-content {
   display: flex;
-  gap: 24px;
-  margin-bottom: 16px;
+  gap: 8px;
+  margin-bottom: 8px;
   overflow: auto;
-  max-height: 200px;
+  max-height: none;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
 
   @media (max-width: 600px) {
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
   }
 }
 
 .flashcard-side {
-  flex: 1;
+  flex: 0 0 auto;
+  padding: 4px 0;
+  min-height: 0;
+
+  &:first-child {
+    margin-bottom: 4px;
+    max-height: 50%;
+    overflow: auto;
+  }
+
+  &:last-child {
+    max-height: 50%;
+    overflow: auto;
+  }
 
   h3 {
     margin-top: 0;
     font-size: 16px;
     font-weight: 500;
     color: rgba(0, 0, 0, 0.67);
-    margin-bottom: 8px;
+    margin-bottom: 4px;
+    position: sticky;
+    top: 0;
+
+    z-index: 1;
   }
 
   p {
@@ -27,6 +47,7 @@
     font-size: 14px;
     word-break: break-word;
     white-space: pre-wrap;
+    overflow: visible;
   }
 }
 
@@ -58,4 +79,10 @@
 
 textarea {
   resize: none;
+}
+
+.flashcard-divider {
+  height: 1px;
+  background-color: #e0e0e0;
+  margin: 12px 0;
 }
