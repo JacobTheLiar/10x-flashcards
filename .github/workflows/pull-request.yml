@@ -12,18 +12,13 @@ jobs:
       db:
         image: postgres:17.4-alpine
         env:
-          # Użyj sekretów GitHub do konfiguracji bazy danych dla testów
           POSTGRES_USER: ${{ secrets.SUPER_USER }}
           POSTGRES_PASSWORD: ${{ secrets.SUPER_PASSWORD }}
           POSTGRES_DB: ${{ secrets.DB_NAME }}
         ports:
-          # Mapowanie portu, aby testy mogły łączyć się przez localhost:5432,
-          # jeśli tak są skonfigurowane. Domyślnie Spring będzie szukał na localhost.
-          # Alternatywnie, można użyć nazwy usługi 'db' w JDBC URL.
           - 5432:5432
-        # Opcje healthchecka, aby upewnić się, że baza jest gotowa przed uruchomieniem testów
         options: >-
-          --health-cmd pg_isready -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }}
+          --health-cmd pg_isready -U ${{ secrets.SUPER_USER }} -d ${{ secrets.DB_NAME }}
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -48,21 +43,68 @@ jobs:
       - name: Run backend tests
         run: mvn -B test
         env:
-          # Przekaż odpowiednie zmienne środowiskowe do Spring Boot / Mavena
-          # aby Twoje testy mogły połączyć się z usługą bazy danych 'db'.
-          # Jeśli Twoje pliki application-test.properties odczytują zmienne systemowe,
-          # upewnij się, że odpowiednie nazwy zmiennych są tu użyte.
-          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/${{ secrets.DB_NAME }} # lub jdbc:postgresql://db:5432/...
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/${{ secrets.DB_NAME }}
           SPRING_DATASOURCE_USERNAME: ${{ secrets.DB_USER }}
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          SPRING_PROFILES_ACTIVE: test # Upewnij się, że profil 'test' jest aktywny, jeśli go używasz
-          # Dodaj inne sekrety/zmienne potrzebne dla testów, np.
-          # SUPER_USER: ${{ secrets.SUPER_USER_TEST }} # Jeśli używane w testach
+          SPRING_PROFILES_ACTIVE: test
+          SUPER_USER: ${{ secrets.SUPER_USER }}
+          SUPER_PASSWORD: ${{ secrets.SUPER_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_USER: ${{ secrets.DB_USER }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRATION_MS: ${{ secrets.JWT_EXPIRATION_MS }}
+
+  build-docker-backend:
+    name: Build Backend Docker Image
+    runs-on: ubuntu-latest
+    needs: test-backend # Zależność od pomyślnych testów backendu
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build backend image
+        run: docker-compose build backend
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/${{ secrets.DB_NAME }}
+          SPRING_DATASOURCE_USERNAME: ${{ secrets.DB_USER }}
+          SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          SPRING_PROFILES_ACTIVE: test
+          SUPER_USER: ${{ secrets.SUPER_USER }}
+          SUPER_PASSWORD: ${{ secrets.SUPER_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_USER: ${{ secrets.DB_USER }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRATION_MS: ${{ secrets.JWT_EXPIRATION_MS }}
+
+  build-docker-frontend:
+    name: Build Frontend Docker Image
+    runs-on: ubuntu-latest
+    needs: test-backend # Zależność od pomyślnych testów backendu
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build frontend image
+        run: docker-compose build frontend
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/${{ secrets.DB_NAME }}
+          SPRING_DATASOURCE_USERNAME: ${{ secrets.DB_USER }}
+          SPRING_DATASOURCE_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          SPRING_PROFILES_ACTIVE: test
+          SUPER_USER: ${{ secrets.SUPER_USER }}
+          SUPER_PASSWORD: ${{ secrets.SUPER_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_USER: ${{ secrets.DB_USER }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRATION_MS: ${{ secrets.JWT_EXPIRATION_MS }}
 
   status-comment:
     name: Post Status Comment
     runs-on: ubuntu-latest
-    needs: test-backend
+    needs: [build-docker-backend, build-docker-frontend] # Komentarz po pomyślnym zbudowaniu obu obrazów Docker
     if: success()
     steps:
       - name: Post comment
@@ -79,5 +121,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: prNumber,
-              body: '✅ Backend tests passed successfully!'
+              body: '✅ Backend tests passed and Docker images built successfully!'
             });
