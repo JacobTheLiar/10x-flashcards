@@ -10,9 +10,10 @@ COPY ./package.json .
 COPY ./pnpm-lock.yaml .
 RUN pnpm install --frozen-lockfile
 COPY . .
+RUN pnpm run update-api
 RUN pnpm run build
 
-FROM nginx:1.28.0 as final
+FROM nginx:1.28.0 AS final
 ENV APP_NAME Work Planner
 WORKDIR /app
 EXPOSE 80
